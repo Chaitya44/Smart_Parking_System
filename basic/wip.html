@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work In Progress – Smart Parking System</title>
+    <link rel="stylesheet" href="register.css">
+    <style>
+        .card {
+            max-width: 480px;
+            text-align: center;
+            padding: 50px 40px;
+        }
+
+        .wip-icon {
+            font-size: 64px;
+            margin-bottom: 18px;
+            display: block;
+            animation: bounce 1.8s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-10px); }
+        }
+
+        .wip-title {
+            font-size: 1.55rem;
+            font-weight: bold;
+            color: #1a7a4a;
+            margin-bottom: 10px;
+        }
+
+        .wip-subtitle {
+            color: #555555;
+            font-size: 0.92rem;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .wip-badge {
+            display: inline-block;
+            margin-bottom: 22px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.80rem;
+            font-weight: bold;
+        }
+        .badge-green  { background: #e8f7ee; border: 1.5px solid #1a7a4a; color: #1a7a4a; }
+        .badge-yellow { background: #fff8e1; border: 1.5px solid #f0c000; color: #8a6000; }
+
+        .progress-wrap {
+            background-color: #e8e8e8;
+            border-radius: 6px;
+            height: 10px;
+            margin: 0 auto 22px;
+            width: 80%;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #1a7a4a;
+            border-radius: 6px;
+            animation: grow 2.5s ease-in-out infinite alternate;
+        }
+        @keyframes grow { from { width: 30%; } to { width: 46%; } }
+
+        /* Phase checklist */
+        .wip-phases {
+            text-align: left;
+            margin: 0 auto 24px;
+            max-width: 300px;
+        }
+        .wip-phases p {
+            font-size: 0.83rem;
+            color: #555;
+            margin-bottom: 7px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tick  { color: #1a7a4a; font-weight: bold; }
+        .cross { color: #cccccc; font-weight: bold; }
+
+        /* Buttons */
+        .btn-group-wip {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .wip-btn {
+            display: block;
+            padding: 11px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.92rem;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .wip-btn-primary {
+            background-color: #1a7a4a;
+            color: #ffffff;
+        }
+        .wip-btn-primary:hover { background-color: #155f3a; }
+
+        .wip-btn-secondary {
+            background-color: #ffffff;
+            color: #1a7a4a;
+            border: 1.5px solid #1a7a4a;
+        }
+        .wip-btn-secondary:hover { background-color: #edf7f2; }
+
+        /* DB note for login */
+        .db-note {
+            background-color: #fff3f3;
+            border: 1.5px solid #ffcccc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #aa0000;
+            line-height: 1.6;
+        }
+        .db-note strong { display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+<main class="card" role="main">
+
+    <!-- Content is filled by JavaScript below based on ?from= param -->
+    <span id="wipIcon" class="wip-icon">🚧</span>
+    <h1 id="wipTitle" class="wip-title"></h1>
+    <p  id="wipSubtitle" class="wip-subtitle"></p>
+    <div id="wipBadge"></div>
+    <div id="dbNote"></div>
+
+    <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="wip-phases" id="phaseList"></div>
+
+    <div class="btn-group-wip" id="wipButtons"></div>
+
+</main>
+
+<script>
+    // Read ?from= query parameter from the URL
+    // e.g. wip.html?from=register  or  wip.html?from=login
+    var params = new URLSearchParams(window.location.search);
+    var from   = params.get("from"); // "register", "login", or null
+
+    var icon     = document.getElementById("wipIcon");
+    var title    = document.getElementById("wipTitle");
+    var subtitle = document.getElementById("wipSubtitle");
+    var badge    = document.getElementById("wipBadge");
+    var dbNote   = document.getElementById("dbNote");
+    var phases   = document.getElementById("phaseList");
+    var buttons  = document.getElementById("wipButtons");
+
+    // Phase checklist HTML (same for both pages)
+    var phaseHTML =
+        "<p><span class='tick'>✓</span> Phase 1 — HTML Form &amp; CSS Design</p>" +
+        "<p><span class='tick'>✓</span> Phase 2 — JavaScript Validation</p>" +
+        "<p><span class='cross'>○</span> Phase 3 — PHP Backend</p>" +
+        "<p><span class='cross'>○</span> Phase 4 — Database (MySQL)</p>" +
+        "<p><span class='cross'>○</span> Phase 5 — Dashboard &amp; Reports</p>";
+
+    if (from === "login") {
+        // ── Came from Login form ──────────────────────────────
+        icon.textContent     = "🔒";
+        title.textContent    = "Login Unavailable";
+        subtitle.innerHTML   =
+            "Login requires a <strong>database connection</strong> to check<br>" +
+            "your credentials. This will be set up in Phase 3.";
+
+        dbNote.innerHTML =
+            "<div class='db-note'>" +
+            "<strong>⚠ Why can't login work yet?</strong>" +
+            "Login must compare the entered email &amp; password against records " +
+            "stored in a MySQL database. Without a database, there is nothing to check against." +
+            "</div>";
+
+        badge.innerHTML =
+            "<span class='wip-badge badge-yellow'>Needs Database — Coming in Phase 3</span>";
+
+        phases.innerHTML = phaseHTML;
+
+        buttons.innerHTML =
+            "<a href='login.html'  class='wip-btn wip-btn-secondary'>← Back to Login</a>" +
+            "<a href='register.html' class='wip-btn wip-btn-primary'>Go to Register →</a>";
+
+    } else {
+        // ── Came from Register form (default) ─────────────────
+        icon.textContent   = "🚧";
+        title.textContent  = "Registration Submitted!";
+        subtitle.innerHTML =
+            "Your form passed all validations.<br>" +
+            "In the next phase, this data will be saved to the database.";
+
+        badge.innerHTML =
+            "<span class='wip-badge badge-green'>Phase 1 &amp; 2 Complete ✓</span>";
+
+        phases.innerHTML = phaseHTML;
+
+        buttons.innerHTML =
+            "<a href='login.html'    class='wip-btn wip-btn-primary'>Go to Login →</a>" +
+            "<a href='register.html' class='wip-btn wip-btn-secondary'>← Back to Register</a>";
+    }
+</script>
+
+</body>
+</html>

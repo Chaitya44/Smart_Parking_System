@@ -1,0 +1,148 @@
+/* =============================================
+   Smart Parking System - Login Page
+   File: login.css
+   ============================================= */
+
+/* Reuse the same base styles as register.css
+   Only the card width and a few extras differ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    background-color: #f0f2f0;
+    color: #222222;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 10px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+    padding: 36px 40px;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.logo-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    background-color: #1a7a4a;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #1a7a4a;
+}
+
+.card-subtitle { color: #666666; font-size: 0.9rem; }
+
+.form-group { margin-bottom: 16px; }
+
+label {
+    display: block;
+    font-weight: bold;
+    font-size: 0.88rem;
+    color: #333333;
+    margin-bottom: 5px;
+}
+
+.required-star { color: #cc0000; margin-left: 2px; }
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid #cccccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: Arial, sans-serif;
+    color: #222222;
+    background-color: #fafafa;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus { border-color: #1a7a4a; background-color: #ffffff; }
+input.error { border-color: #cc0000; background-color: #fff8f8; }
+
+.error-msg {
+    display: block;
+    color: #cc0000;
+    font-size: 0.80rem;
+    margin-top: 4px;
+    min-height: 1.1em;
+}
+
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 50px; }
+.show-hide-btn {
+    position: absolute; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: #555555; font-size: 0.78rem;
+    font-weight: bold; cursor: pointer;
+    padding: 2px 4px;
+}
+.show-hide-btn:hover { color: #1a7a4a; }
+
+/* Forgot password link */
+.forgot-link {
+    text-align: right;
+    margin-top: -8px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+}
+.forgot-link a { color: #1a7a4a; text-decoration: none; }
+.forgot-link a:hover { text-decoration: underline; }
+
+.btn {
+    display: block; width: 100%;
+    padding: 11px; border: none;
+    border-radius: 6px; font-size: 0.95rem;
+    font-weight: bold; cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary { background-color: #1a7a4a; color: #ffffff; margin-bottom: 10px; }
+.btn-primary:hover { background-color: #155f3a; }
+
+.register-link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.88rem;
+    color: #666666;
+}
+.register-link a { color: #1a7a4a; font-weight: bold; text-decoration: none; }
+.register-link a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) { .card { padding: 24px 18px; } }

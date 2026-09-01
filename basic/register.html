@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register for Smart Parking System.">
+    <title>Register – Smart Parking System</title>
+    <link rel="stylesheet" href="register.css">
+</head>
+<body>
+
+<main class="card" role="main">
+
+    <!-- ============================
+         HEADER: Logo + Page Title
+         ============================ -->
+    <header class="card-header">
+        <div class="logo-box">
+            <div class="logo-icon">P</div>
+            <span class="logo-title">Smart Parking</span>
+        </div>
+        <p class="card-subtitle">Create a new account</p>
+    </header>
+
+    <!-- ============================
+         REGISTRATION FORM
+         action="register.php" → PHP backend (to be added later)
+         method="POST"         → data goes in request body (not URL)
+         novalidate            → disable browser popup, use our JS instead
+         ============================ -->
+    <form id="registerForm" method="POST" action="register.php" novalidate>
+
+        <!-- Full Name -->
+        <div class="form-group">
+            <label for="full_name">
+                Full Name <span class="required-star">*</span>
+            </label>
+            <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                placeholder="e.g. Chaitya Shah"
+                autocomplete="name"
+                maxlength="100"
+            >
+            <!-- Error message appears here via JavaScript -->
+            <small id="fullNameError" class="error-msg"></small>
+        </div>
+
+        <!-- Email Address -->
+        <div class="form-group">
+            <label for="email">
+                Email Address <span class="required-star">*</span>
+            </label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                maxlength="254"
+            >
+            <small id="emailError" class="error-msg"></small>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="form-group">
+            <label for="mobile">
+                Mobile Number <span class="required-star">*</span>
+            </label>
+            <input
+                type="tel"
+                id="mobile"
+                name="mobile"
+                placeholder="10-digit number (starts with 6-9)"
+                maxlength="10"
+            >
+            <small id="mobileError" class="error-msg"></small>
+        </div>
+
+        <!-- Password (with Show/Hide button and strength bar) -->
+        <div class="form-group">
+            <label for="password">
+                Password <span class="required-star">*</span>
+            </label>
+            <!-- pw-wrap: positions the Show/Hide button inside the input -->
+            <div class="pw-wrap">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Min 8 chars, A-Z, 0-9, symbol"
+                    autocomplete="new-password"
+                    maxlength="64"
+                >
+                <button type="button" id="togglePw" class="show-hide-btn">Show</button>
+            </div>
+            <!-- Strength bar: 3 coloured segments filled by JS -->
+            <div class="strength-bar">
+                <div class="strength-segment"></div>
+                <div class="strength-segment"></div>
+                <div class="strength-segment"></div>
+            </div>
+            <div id="strengthText" class="strength-text"></div>
+            <small id="passwordError" class="error-msg"></small>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <label for="confirm_password">
+                Confirm Password <span class="required-star">*</span>
+            </label>
+            <div class="pw-wrap">
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password"
+                >
+                <button type="button" id="toggleCpw" class="show-hide-btn">Show</button>
+            </div>
+            <small id="confirmError" class="error-msg"></small>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group">
+            <label for="address">
+                Address <span class="required-star">*</span>
+            </label>
+            <textarea
+                id="address"
+                name="address"
+                placeholder="Enter your full address (min 10 characters)"
+                rows="3"
+                maxlength="250"
+            ></textarea>
+            <small id="addressError" class="error-msg"></small>
+        </div>
+
+        <!-- Terms & Conditions checkbox -->
+        <div class="checkbox-row">
+            <input type="checkbox" id="terms" name="terms">
+            <label for="terms">
+                I agree to the <a href="#">Terms &amp; Conditions</a>
+            </label>
+        </div>
+        <small id="termsError" class="error-msg"></small>
+
+        <!-- Buttons -->
+        <button type="submit" id="submitBtn" class="btn btn-primary">Create Account</button>
+        <button type="reset"  id="resetBtn"  class="btn btn-secondary">Clear Form</button>
+
+    </form>
+
+    <!-- Link to Login page -->
+    <p class="login-link">
+        Already have an account? <a href="login.html">Login here</a>
+    </p>
+
+</main>
+
+<!-- Load the JavaScript file AFTER the HTML so all elements exist -->
+<script src="register.js"></script>
+
+</body>
+</html>

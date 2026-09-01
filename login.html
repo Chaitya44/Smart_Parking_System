@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to Smart Parking.">
+    <title>Login – Smart Parking System</title>
+    <link rel="stylesheet" href="register.css">
+    <style>
+        .card { max-width: 420px; }
+        .placeholder-body {
+            text-align: center;
+            padding: 24px 0 8px;
+        }
+        .placeholder-body p {
+            color: var(--text-lo);
+            font-size: 0.9rem;
+            line-height: 1.65;
+        }
+        .phase-tag {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 5px 16px;
+            background: rgba(52,199,89,0.12);
+            border: 1px solid rgba(52,199,89,0.28);
+            border-radius: 20px;
+            color: #7dffaa;
+            font-size: 0.74rem;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+<main class="card" role="main">
+    <canvas id="lensCanvas" aria-hidden="true"></canvas>
+    <div class="glass-tint" aria-hidden="true"></div>
+
+    <header class="card-header">
+        <div class="logo">
+            <div class="logo-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M6 3h7a6 6 0 0 1 0 12H9v6H6V3zm3 9h4a3 3 0 0 0 0-6H9v6z"/>
+                </svg>
+            </div>
+            <span class="logo-text">Smart Parking</span>
+        </div>
+        <p class="card-subtitle">Welcome back</p>
+    </header>
+
+    <div class="placeholder-body">
+        <p>Login functionality is coming<br>in the next development phase.</p>
+        <span class="phase-tag">Phase 2</span>
+    </div>
+
+    <p class="login-link" style="margin-top:30px;">
+        Don't have an account? <a href="register.html">Register here</a>
+    </p>
+</main>
+
+<script src="glass-lens.js"></script>
+</body>
+</html>
