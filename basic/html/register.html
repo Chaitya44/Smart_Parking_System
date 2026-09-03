@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Register for Smart Parking System.">
     <title>Register – Smart Parking System</title>
-    <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="../css/register.css">
 </head>
 <body>
 
 <main class="card" role="main">
 
-    <!-- ============================
-         HEADER: Logo + Page Title
-         ============================ -->
     <header class="card-header">
         <div class="logo-box">
             <div class="logo-icon">P</div>
@@ -22,15 +19,8 @@
         <p class="card-subtitle">Create a new account</p>
     </header>
 
-    <!-- ============================
-         REGISTRATION FORM
-         action="register.php" → PHP backend (to be added later)
-         method="POST"         → data goes in request body (not URL)
-         novalidate            → disable browser popup, use our JS instead
-         ============================ -->
-    <form id="registerForm" method="POST" action="register.php" novalidate>
+    <form id="registerForm" method="POST" action="../php/register.php" novalidate>
 
-        <!-- Full Name -->
         <div class="form-group">
             <label for="full_name">
                 Full Name <span class="required-star">*</span>
@@ -39,15 +29,13 @@
                 type="text"
                 id="full_name"
                 name="full_name"
-                placeholder="e.g. Chaitya Shah"
+                placeholder="e.g. Alex Morgan"
                 autocomplete="name"
                 maxlength="100"
             >
-            <!-- Error message appears here via JavaScript -->
             <small id="fullNameError" class="error-msg"></small>
         </div>
 
-        <!-- Email Address -->
         <div class="form-group">
             <label for="email">
                 Email Address <span class="required-star">*</span>
@@ -63,7 +51,6 @@
             <small id="emailError" class="error-msg"></small>
         </div>
 
-        <!-- Mobile Number -->
         <div class="form-group">
             <label for="mobile">
                 Mobile Number <span class="required-star">*</span>
@@ -78,12 +65,10 @@
             <small id="mobileError" class="error-msg"></small>
         </div>
 
-        <!-- Password (with Show/Hide button and strength bar) -->
         <div class="form-group">
             <label for="password">
                 Password <span class="required-star">*</span>
             </label>
-            <!-- pw-wrap: positions the Show/Hide button inside the input -->
             <div class="pw-wrap">
                 <input
                     type="password"
@@ -95,7 +80,6 @@
                 >
                 <button type="button" id="togglePw" class="show-hide-btn">Show</button>
             </div>
-            <!-- Strength bar: 3 coloured segments filled by JS -->
             <div class="strength-bar">
                 <div class="strength-segment"></div>
                 <div class="strength-segment"></div>
@@ -105,7 +89,6 @@
             <small id="passwordError" class="error-msg"></small>
         </div>
 
-        <!-- Confirm Password -->
         <div class="form-group">
             <label for="confirm_password">
                 Confirm Password <span class="required-star">*</span>
@@ -123,7 +106,6 @@
             <small id="confirmError" class="error-msg"></small>
         </div>
 
-        <!-- Address -->
         <div class="form-group">
             <label for="address">
                 Address <span class="required-star">*</span>
@@ -138,7 +120,6 @@
             <small id="addressError" class="error-msg"></small>
         </div>
 
-        <!-- Terms & Conditions checkbox -->
         <div class="checkbox-row">
             <input type="checkbox" id="terms" name="terms">
             <label for="terms">
@@ -147,21 +128,18 @@
         </div>
         <small id="termsError" class="error-msg"></small>
 
-        <!-- Buttons -->
         <button type="submit" id="submitBtn" class="btn btn-primary">Create Account</button>
         <button type="reset"  id="resetBtn"  class="btn btn-secondary">Clear Form</button>
 
     </form>
 
-    <!-- Link to Login page -->
     <p class="login-link">
-        Already have an account? <a href="login.html">Login here</a>
+        Already have an account? <a href="login.html">Login here</a> &bull; <a href="index.html">Home</a>
     </p>
 
 </main>
 
-<!-- Load the JavaScript file AFTER the HTML so all elements exist -->
-<script src="register.js"></script>
+<script src="../js/register.js"></script>
 
 </body>
 </html>

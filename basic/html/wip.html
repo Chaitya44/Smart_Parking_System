@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work In Progress – Smart Parking System</title>
-    <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="../css/register.css">
     <style>
         .card {
             max-width: 480px;
@@ -64,7 +64,6 @@
         }
         @keyframes grow { from { width: 30%; } to { width: 46%; } }
 
-        /* Phase checklist */
         .wip-phases {
             text-align: left;
             margin: 0 auto 24px;
@@ -81,7 +80,6 @@
         .tick  { color: #1a7a4a; font-weight: bold; }
         .cross { color: #cccccc; font-weight: bold; }
 
-        /* Buttons */
         .btn-group-wip {
             display: flex;
             flex-direction: column;
@@ -112,7 +110,6 @@
         }
         .wip-btn-secondary:hover { background-color: #edf7f2; }
 
-        /* DB note for login */
         .db-note {
             background-color: #fff3f3;
             border: 1.5px solid #ffcccc;
@@ -130,7 +127,6 @@
 
 <main class="card" role="main">
 
-    <!-- Content is filled by JavaScript below based on ?from= param -->
     <span id="wipIcon" class="wip-icon">🚧</span>
     <h1 id="wipTitle" class="wip-title"></h1>
     <p  id="wipSubtitle" class="wip-subtitle"></p>
@@ -148,32 +144,28 @@
 </main>
 
 <script>
-    // Read ?from= query parameter from the URL
-    // e.g. wip.html?from=register  or  wip.html?from=login
     var params = new URLSearchParams(window.location.search);
-    var from   = params.get("from"); // "register", "login", or null
+    var from = params.get("from");
 
-    var icon     = document.getElementById("wipIcon");
-    var title    = document.getElementById("wipTitle");
+    var icon = document.getElementById("wipIcon");
+    var title = document.getElementById("wipTitle");
     var subtitle = document.getElementById("wipSubtitle");
-    var badge    = document.getElementById("wipBadge");
-    var dbNote   = document.getElementById("dbNote");
-    var phases   = document.getElementById("phaseList");
-    var buttons  = document.getElementById("wipButtons");
+    var badge = document.getElementById("wipBadge");
+    var dbNote = document.getElementById("dbNote");
+    var phases = document.getElementById("phaseList");
+    var buttons = document.getElementById("wipButtons");
 
-    // Phase checklist HTML (same for both pages)
     var phaseHTML =
         "<p><span class='tick'>✓</span> Phase 1 — HTML Form &amp; CSS Design</p>" +
         "<p><span class='tick'>✓</span> Phase 2 — JavaScript Validation</p>" +
         "<p><span class='cross'>○</span> Phase 3 — PHP Backend</p>" +
         "<p><span class='cross'>○</span> Phase 4 — Database (MySQL)</p>" +
-        "<p><span class='cross'>○</span> Phase 5 — Dashboard &amp; Reports</p>";
+        "<p><span class='tick'>✓</span> Phase 5 — Dashboard &amp; Reports</p>";
 
     if (from === "login") {
-        // ── Came from Login form ──────────────────────────────
-        icon.textContent     = "🔒";
-        title.textContent    = "Login Unavailable";
-        subtitle.innerHTML   =
+        icon.textContent = "🔒";
+        title.textContent = "Login Unavailable";
+        subtitle.innerHTML =
             "Login requires a <strong>database connection</strong> to check<br>" +
             "your credentials. This will be set up in Phase 3.";
 
@@ -190,13 +182,13 @@
         phases.innerHTML = phaseHTML;
 
         buttons.innerHTML =
-            "<a href='login.html'  class='wip-btn wip-btn-secondary'>← Back to Login</a>" +
-            "<a href='register.html' class='wip-btn wip-btn-primary'>Go to Register →</a>";
+            "<a href='dashboard.html' class='wip-btn wip-btn-primary'>View Live Dashboard →</a>" +
+            "<a href='login.html' class='wip-btn wip-btn-secondary'>← Back to Login</a>" +
+            "<a href='register.html' class='wip-btn wip-btn-secondary'>Go to Register</a>";
 
     } else {
-        // ── Came from Register form (default) ─────────────────
-        icon.textContent   = "🚧";
-        title.textContent  = "Registration Submitted!";
+        icon.textContent = "🚧";
+        title.textContent = "Registration Submitted!";
         subtitle.innerHTML =
             "Your form passed all validations.<br>" +
             "In the next phase, this data will be saved to the database.";
@@ -207,7 +199,8 @@
         phases.innerHTML = phaseHTML;
 
         buttons.innerHTML =
-            "<a href='login.html'    class='wip-btn wip-btn-primary'>Go to Login →</a>" +
+            "<a href='login.html' class='wip-btn wip-btn-primary'>Go to Login →</a>" +
+            "<a href='dashboard.html' class='wip-btn wip-btn-secondary'>View Live Dashboard</a>" +
             "<a href='register.html' class='wip-btn wip-btn-secondary'>← Back to Register</a>";
     }
 </script>

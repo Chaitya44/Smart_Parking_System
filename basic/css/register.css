@@ -1,31 +1,21 @@
-/* =============================================
-   Smart Parking System - Registration Page
-   File: register.css
-   ============================================= */
-
-/* --- 1. Reset: remove default browser spacing --- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* --- 2. Page background and centering --- */
 body {
     font-family: Arial, sans-serif;
     font-size: 15px;
     background-color: #f0f2f0;
     color: #222222;
     min-height: 100vh;
-
-    /* Center the card both horizontally and vertically */
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
 }
 
-/* --- 3. White registration card --- */
 .card {
     background-color: #ffffff;
     width: 100%;
@@ -35,7 +25,6 @@ body {
     padding: 36px 40px;
 }
 
-/* --- 4. Header: logo + title --- */
 .card-header {
     text-align: center;
     margin-bottom: 28px;
@@ -48,7 +37,6 @@ body {
     margin-bottom: 6px;
 }
 
-/* Green square with letter P */
 .logo-icon {
     width: 42px;
     height: 42px;
@@ -73,12 +61,10 @@ body {
     font-size: 0.9rem;
 }
 
-/* --- 5. Each form field group --- */
 .form-group {
     margin-bottom: 16px;
 }
 
-/* Label above every input */
 label {
     display: block;
     font-weight: bold;
@@ -87,13 +73,11 @@ label {
     margin-bottom: 5px;
 }
 
-/* Red star for required fields */
 .required-star {
     color: #cc0000;
     margin-left: 2px;
 }
 
-/* --- 6. Input and textarea styling --- */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
@@ -108,52 +92,45 @@ textarea {
     color: #222222;
     background-color: #fafafa;
     outline: none;
-
-    /* Smooth border color change on focus */
     transition: border-color 0.2s;
 }
 
-/* Green border when focused */
 input:focus,
 textarea:focus {
     border-color: #1a7a4a;
     background-color: #ffffff;
 }
 
-/* Red border when input has an error */
 input.error,
 textarea.error {
     border-color: #cc0000;
     background-color: #fff8f8;
 }
 
-/* Green border when input is valid */
 input.valid,
 textarea.valid {
     border-color: #1a7a4a;
 }
 
 textarea {
-    resize: vertical;      /* user can resize vertically only */
+    resize: vertical;
     min-height: 80px;
 }
 
-/* --- 7. Error message below each field --- */
 .error-msg {
     display: block;
     color: #cc0000;
     font-size: 0.80rem;
     margin-top: 4px;
-    min-height: 1.1em;     /* reserve space so page doesn't jump */
+    min-height: 1.1em;
 }
 
-/* --- 8. Password show/hide button --- */
 .pw-wrap {
     position: relative;
 }
 
 .pw-wrap input {
-    padding-right: 50px;   /* room for the Show/Hide button */
+    padding-right: 50px;
 }
 
 .show-hide-btn {
@@ -174,7 +151,6 @@ textarea {
     color: #1a7a4a;
 }
 
-/* --- 9. Password strength bar --- */
 .strength-bar {
     display: flex;
     gap: 4px;
@@ -186,8 +162,6 @@ textarea {
     flex: 1;
     background-color: #dddddd;
     border-radius: 2px;
-
-    /* Smooth colour change */
     transition: background-color 0.25s;
 }
 
@@ -198,7 +172,6 @@ textarea {
     color: #666666;
 }
 
-/* Colour classes added by JavaScript */
 .seg-weak   { background-color: #cc3300; }
 .seg-medium { background-color: #dd7700; }
 .seg-strong { background-color: #1a7a4a; }
@@ -207,7 +180,6 @@ textarea {
 .label-medium { color: #dd7700; }
 .label-strong { color: #1a7a4a; }
 
-/* --- 10. Checkbox row (Terms & Conditions) --- */
 .checkbox-row {
     display: flex;
     align-items: flex-start;
@@ -220,7 +192,7 @@ textarea {
     height: 17px;
     margin-top: 2px;
     flex-shrink: 0;
-    accent-color: #1a7a4a; /* green tick colour */
+    accent-color: #1a7a4a;
     cursor: pointer;
 }
 
@@ -240,7 +212,6 @@ textarea {
     text-decoration: underline;
 }
 
-/* --- 11. Buttons --- */
 .btn {
     display: block;
     width: 100%;
@@ -253,7 +224,6 @@ textarea {
     transition: background-color 0.2s;
 }
 
-/* Primary green button */
 .btn-primary {
     background-color: #1a7a4a;
     color: #ffffff;
@@ -264,7 +234,6 @@ textarea {
     background-color: #155f3a;
 }
 
-/* Secondary white/outline button */
 .btn-secondary {
     background-color: #ffffff;
     color: #1a7a4a;
@@ -275,7 +244,6 @@ textarea {
     background-color: #edf7f2;
 }
 
-/* --- 12. Login link at the bottom --- */
 .login-link {
     text-align: center;
     margin-top: 18px;
@@ -293,7 +261,6 @@ textarea {
     text-decoration: underline;
 }
 
-/* --- 13. Responsive: smaller screens --- */
 @media (max-width: 600px) {
     .card {
         padding: 24px 18px;

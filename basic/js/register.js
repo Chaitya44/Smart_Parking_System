@@ -1,61 +1,26 @@
-// =============================================
-//   Smart Parking System - Form Validation
-//   File: register.js
-//   
-//   How this file works:
-//   1. Wait for the page to fully load (DOMContentLoaded)
-//   2. When the form is submitted → validate every field
-//   3. If any field has an error → stop submission, show error
-//   4. If all fields are valid  → show success message
-//   5. Live feedback as user types (blur events)
-// =============================================
-
-// ---- Regular Expressions (pattern rules) ----
-// These define what is and is not valid input
-
-// Name: only letters and spaces, 3 to 100 characters
 var NAME_PATTERN = /^[A-Za-z ]{3,100}$/;
-
-// Email: must have characters, @, domain, and .extension
 var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Mobile: must start with 6,7,8 or 9 and have exactly 10 digits
 var MOBILE_PATTERN = /^[6-9]\d{9}$/;
 
-
-// =============================================
-// HELPER FUNCTIONS
-// These small functions do one job each
-// =============================================
-
-// showError: marks a field red and shows an error message
 function showError(inputId, errorId, message) {
     var input = document.getElementById(inputId);
     var errorBox = document.getElementById(errorId);
 
-    input.classList.remove("valid");  // remove green border
-    input.classList.add("error");     // add red border
+    input.classList.remove("valid");
+    input.classList.add("error");
 
-    errorBox.textContent = message;   // show the error text
+    errorBox.textContent = message;
 }
 
-// clearError: marks a field green and hides the error message
 function clearError(inputId, errorId) {
     var input = document.getElementById(inputId);
     var errorBox = document.getElementById(errorId);
 
-    input.classList.remove("error");  // remove red border
-    input.classList.add("valid");     // add green border
+    input.classList.remove("error");
+    input.classList.add("valid");
 
-    errorBox.textContent = "";        // clear the error text
+    errorBox.textContent = "";
 }
-
-
-// =============================================
-// FIELD VALIDATION FUNCTIONS
-// Each function validates one field.
-// Returns true if valid, false if invalid.
-// =============================================
 
 function validateFullName() {
     var value = document.getElementById("full_name").value.trim();
@@ -74,7 +39,6 @@ function validateFullName() {
 }
 
 function validateEmail() {
-    // toLowerCase: convert to lowercase before checking
     var value = document.getElementById("email").value.trim().toLowerCase();
 
     if (value === "") {
@@ -108,7 +72,6 @@ function validateMobile() {
 
 function validatePassword() {
     var value = document.getElementById("password").value;
-    // Note: we do NOT trim passwords — spaces are allowed in passwords
 
     if (value === "") {
         showError("password", "passwordError", "Password is required.");
@@ -145,7 +108,7 @@ function validatePassword() {
 
 function validateConfirmPassword() {
     var password = document.getElementById("password").value;
-    var confirm  = document.getElementById("confirm_password").value;
+    var confirm = document.getElementById("confirm_password").value;
 
     if (confirm === "") {
         showError("confirm_password", "confirmError", "Please confirm your password.");
@@ -193,52 +156,35 @@ function validateTerms() {
     return true;
 }
 
-
-// =============================================
-// PASSWORD STRENGTH INDICATOR
-// Counts how many rules the password satisfies
-// Shows Weak / Medium / Strong
-// =============================================
-
 function updatePasswordStrength() {
     var value = document.getElementById("password").value;
-
-    // 3 visual bar segments
     var segments = document.querySelectorAll(".strength-segment");
-    var label    = document.getElementById("strengthText");
+    var label = document.getElementById("strengthText");
 
-    // Count which rules are satisfied
     var score = 0;
-    if (/[A-Z]/.test(value)) score++;   // has uppercase
-    if (/[a-z]/.test(value)) score++;   // has lowercase
-    if (/[0-9]/.test(value)) score++;   // has number
-    if (/[^A-Za-z0-9]/.test(value)) score++; // has special char
+    if (/[A-Z]/.test(value)) score++;
+    if (/[a-z]/.test(value)) score++;
+    if (/[0-9]/.test(value)) score++;
+    if (/[^A-Za-z0-9]/.test(value)) score++;
 
-    // Reset all segments to grey first
     segments[0].className = "strength-segment";
     segments[1].className = "strength-segment";
     segments[2].className = "strength-segment";
     label.textContent = "";
     label.className = "strength-text";
 
-    // Nothing typed yet → leave bar empty
     if (value === "") return;
 
     if (score <= 2) {
-        // WEAK: fill only first segment red
         segments[0].classList.add("seg-weak");
         label.textContent = "Weak";
         label.classList.add("label-weak");
-
     } else if (score === 3) {
-        // MEDIUM: fill two segments orange
         segments[0].classList.add("seg-medium");
         segments[1].classList.add("seg-medium");
         label.textContent = "Medium";
         label.classList.add("label-medium");
-
     } else {
-        // STRONG: fill all three segments green
         segments[0].classList.add("seg-strong");
         segments[1].classList.add("seg-strong");
         segments[2].classList.add("seg-strong");
@@ -247,45 +193,32 @@ function updatePasswordStrength() {
     }
 }
 
-
-// =============================================
-// SHOW / HIDE PASSWORD TOGGLE
-// =============================================
-
 function setupToggle(buttonId, inputId) {
     var button = document.getElementById(buttonId);
-    var input  = document.getElementById(inputId);
+    var input = document.getElementById(inputId);
 
     button.addEventListener("click", function () {
         if (input.type === "password") {
-            input.type = "text";       // show the password
+            input.type = "text";
             button.textContent = "Hide";
         } else {
-            input.type = "password";   // hide the password
+            input.type = "password";
             button.textContent = "Show";
         }
     });
 }
 
-
-// =============================================
-// RESET BUTTON: clear all validation styles
-// =============================================
-
 function resetValidation() {
-    // Remove red/green borders from all inputs
     var inputs = document.querySelectorAll("input, textarea");
     inputs.forEach(function (el) {
         el.classList.remove("error", "valid");
     });
 
-    // Clear all error messages
     var errors = document.querySelectorAll(".error-msg");
     errors.forEach(function (el) {
         el.textContent = "";
     });
 
-    // Reset strength bar
     var segments = document.querySelectorAll(".strength-segment");
     segments.forEach(function (s) {
         s.className = "strength-segment";
@@ -297,44 +230,51 @@ function resetValidation() {
     }
 }
 
-
-// =============================================
-// MAIN: runs when the page is fully loaded
-// =============================================
-
 document.addEventListener("DOMContentLoaded", function () {
 
-    // --- Wire up live validation (checks when user leaves a field) ---
-    document.getElementById("full_name").addEventListener("blur", validateFullName);
-    document.getElementById("email").addEventListener("blur", validateEmail);
-    document.getElementById("mobile").addEventListener("blur", validateMobile);
-    document.getElementById("address").addEventListener("blur", validateAddress);
+    var nameInput = document.getElementById("full_name");
+    var emailInput = document.getElementById("email");
+    var mobileInput = document.getElementById("mobile");
+    var addressInput = document.getElementById("address");
+
+    nameInput.addEventListener("blur", validateFullName);
+    nameInput.addEventListener("input", function () {
+        if (nameInput.classList.contains("error")) validateFullName();
+    });
+
+    emailInput.addEventListener("blur", validateEmail);
+    emailInput.addEventListener("input", function () {
+        if (emailInput.classList.contains("error")) validateEmail();
+    });
+
+    mobileInput.addEventListener("blur", validateMobile);
+    mobileInput.addEventListener("input", function () {
+        if (mobileInput.classList.contains("error")) validateMobile();
+    });
+
+    addressInput.addEventListener("blur", validateAddress);
+    addressInput.addEventListener("input", function () {
+        if (addressInput.classList.contains("error")) validateAddress();
+    });
+
     document.getElementById("terms").addEventListener("change", validateTerms);
 
-    // Password: validate + update strength bar while typing
     document.getElementById("password").addEventListener("input", function () {
         updatePasswordStrength();
         validatePassword();
-        // Also re-check confirm password if it already has a value
         if (document.getElementById("confirm_password").value !== "") {
             validateConfirmPassword();
         }
     });
 
-    // Confirm password: check match while typing
     document.getElementById("confirm_password").addEventListener("input", validateConfirmPassword);
 
-    // --- Show / Hide toggles ---
-    setupToggle("togglePw",     "password");
-    setupToggle("toggleCpw",    "confirm_password");
+    setupToggle("togglePw", "password");
+    setupToggle("toggleCpw", "confirm_password");
 
-    // --- Reset button ---
     document.getElementById("resetBtn").addEventListener("click", resetValidation);
 
-    // --- Form submit ---
     document.getElementById("registerForm").addEventListener("submit", function (e) {
-
-        // Run all validators and collect true/false results
         var results = [
             validateFullName(),
             validateEmail(),
@@ -345,23 +285,16 @@ document.addEventListener("DOMContentLoaded", function () {
             validateTerms()
         ];
 
-        // Check if any validator returned false
         var hasError = results.includes(false);
 
         if (hasError) {
-            e.preventDefault(); // STOP the form from submitting
-
-            // Move focus to the first field with an error
+            e.preventDefault();
             var firstError = document.querySelector("input.error, textarea.error");
             if (firstError) {
                 firstError.focus();
             }
-
         } else {
-            e.preventDefault(); // prevent form posting to register.php
-            // All valid — for now show a message (PHP backend comes later)
-            // All fields valid → go to WIP page
-            // ?from=register tells wip.html to show "Go to Login" button
+            e.preventDefault();
             window.location.href = "wip.html?from=register";
         }
     });
