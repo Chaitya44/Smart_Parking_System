@@ -1,963 +1,415 @@
-var STORAGE_KEY_SLOTS = "smart_parking_slots_v3";
-var STORAGE_KEY_LOGS = "smart_parking_logs_v3";
-var STORAGE_KEY_REV = "smart_parking_revenue_v3";
+/**
+ * Smart Parking System - Dashboard Controller
+ * All data comes from PHP PDO API (smart_parking_db).
+ * No localStorage, no demo/seed data.
+ */
 
-var VEHICLE_NO_PATTERN = /^[A-Za-z0-9\s-]{6,15}$/;
-var DRIVER_NAME_PATTERN = /^[A-Za-z\s]{3,60}$/;
-var MOBILE_PATTERN = /^[6-9]\d{9}$/;
-var SLOT_ID_PATTERN = /^[A-Za-z0-9-]{2,10}$/;
+/* ── Runtime state loaded from API ── */
+var slots = [];   // Live slot data from api/slots.php
+var activeCheckoutSlot = null; // Slot currently being checked out
 
-var INITIAL_SLOTS = [
-    { id: "A-01", zone: "Zone A", type: "4-Wheeler Car", status: "OCCUPIED", vehicleNo: "MH 02 AB 1234", driver: "Aarav Patel", phone: "9876543210", entryTime: "2026-09-03 16:30", rate: 40, hasEV: false },
-    { id: "A-02", zone: "Zone A", type: "4-Wheeler Car", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 40, hasEV: false },
-    { id: "A-03", zone: "Zone A", type: "4-Wheeler Car", status: "OCCUPIED", vehicleNo: "DL 01 CD 5678", driver: "Rohit Verma", phone: "9823456781", entryTime: "2026-09-03 17:15", rate: 40, hasEV: false },
-    { id: "A-04", zone: "Zone A", type: "4-Wheeler Car", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 40, hasEV: true },
-    { id: "A-05", zone: "Zone A", type: "4-Wheeler Car", status: "RESERVED", vehicleNo: "MH 12 VIP 0001", driver: "Director General", phone: "9811122233", entryTime: "", rate: 40, hasEV: false },
-    { id: "A-06", zone: "Zone A", type: "4-Wheeler Car", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 40, hasEV: false },
-    { id: "A-07", zone: "Zone A", type: "4-Wheeler Car", status: "OCCUPIED", vehicleNo: "MH 04 EF 9012", driver: "Sanya Gupta", phone: "9765432109", entryTime: "2026-09-03 18:00", rate: 40, hasEV: false },
-    { id: "A-08", zone: "Zone A", type: "4-Wheeler Car", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 40, hasEV: true },
-    { id: "B-01", zone: "Zone B", type: "2-Wheeler Bike", status: "OCCUPIED", vehicleNo: "MH 03 GH 3456", driver: "Karan Johar", phone: "9834567812", entryTime: "2026-09-03 17:45", rate: 20, hasEV: false },
-    { id: "B-02", zone: "Zone B", type: "2-Wheeler Scooter", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 20, hasEV: false },
-    { id: "B-03", zone: "Zone B", type: "2-Wheeler Bike", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 20, hasEV: false },
-    { id: "B-04", zone: "Zone B", type: "2-Wheeler Scooter", status: "OCCUPIED", vehicleNo: "MH 01 IJ 7890", driver: "Pooja Sharma", phone: "9912345678", entryTime: "2026-09-03 18:30", rate: 20, hasEV: false },
-    { id: "B-05", zone: "Zone B", type: "2-Wheeler Bike", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 20, hasEV: false },
-    { id: "B-06", zone: "Zone B", type: "2-Wheeler Scooter", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 20, hasEV: false },
-    { id: "C-01", zone: "Zone C", type: "EV Vehicle", status: "OCCUPIED", vehicleNo: "MH 02 EV 2026", driver: "Vikram Mehta", phone: "9870011223", entryTime: "2026-09-03 16:00", rate: 60, hasEV: true },
-    { id: "C-02", zone: "Zone C", type: "EV Vehicle", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 60, hasEV: true },
-    { id: "C-03", zone: "Zone C", type: "EV Vehicle", status: "RESERVED", vehicleNo: "KA 05 EV 9999", driver: "Fleet EV 1", phone: "9845098450", entryTime: "", rate: 60, hasEV: true },
-    { id: "C-04", zone: "Zone C", type: "EV Vehicle", status: "AVAILABLE", vehicleNo: "", driver: "", phone: "", entryTime: "", rate: 60, hasEV: true }
-];
-
-var INITIAL_LOGS = [
-    { ticketId: "TKT-1001", slotId: "A-01", vehicleNo: "MH 02 AB 1234", type: "4-Wheeler Car", driver: "Aarav Patel", phone: "9876543210", entryTime: "2026-09-03 16:30", exitTime: "-", status: "ACTIVE", fee: 40 },
-    { ticketId: "TKT-1002", slotId: "A-03", vehicleNo: "DL 01 CD 5678", type: "4-Wheeler Car", driver: "Rohit Verma", phone: "9823456781", entryTime: "2026-09-03 17:15", exitTime: "-", status: "ACTIVE", fee: 40 },
-    { ticketId: "TKT-1003", slotId: "C-01", vehicleNo: "MH 02 EV 2026", type: "EV Vehicle", driver: "Vikram Mehta", phone: "9870011223", entryTime: "2026-09-03 16:00", exitTime: "-", status: "ACTIVE", fee: 60 },
-    { ticketId: "TKT-1004", slotId: "B-01", vehicleNo: "MH 03 GH 3456", type: "2-Wheeler Bike", driver: "Karan Johar", phone: "9834567812", entryTime: "2026-09-03 17:45", exitTime: "-", status: "ACTIVE", fee: 20 },
-    { ticketId: "TKT-1005", slotId: "A-07", vehicleNo: "MH 04 EF 9012", type: "4-Wheeler Car", driver: "Sanya Gupta", phone: "9765432109", entryTime: "2026-09-03 18:00", exitTime: "-", status: "ACTIVE", fee: 40 },
-    { ticketId: "TKT-1006", slotId: "B-04", vehicleNo: "MH 01 IJ 7890", type: "2-Wheeler Scooter", driver: "Pooja Sharma", phone: "9912345678", entryTime: "2026-09-03 18:30", exitTime: "-", status: "ACTIVE", fee: 20 },
-    { ticketId: "TKT-0998", slotId: "A-02", vehicleNo: "MH 04 XY 7711", type: "4-Wheeler Car", driver: "Sameer Nair", phone: "9899988877", entryTime: "2026-09-03 14:10", exitTime: "2026-09-03 16:15", status: "COMPLETED", fee: 120 },
-    { ticketId: "TKT-0999", slotId: "B-02", vehicleNo: "MH 02 ZZ 4455", type: "2-Wheeler Scooter", driver: "Deepak Joshi", phone: "9871122334", entryTime: "2026-09-03 15:00", exitTime: "2026-09-03 17:00", status: "COMPLETED", fee: 40 }
-];
-
-var INITIAL_REV = 160;
-
-var ParkingAPI = {
-    _loadState: function () {
-        var slots = localStorage.getItem(STORAGE_KEY_SLOTS);
-        var logs = localStorage.getItem(STORAGE_KEY_LOGS);
-        var rev = localStorage.getItem(STORAGE_KEY_REV);
-
-        if (!slots || !logs || rev === null) {
-            localStorage.setItem(STORAGE_KEY_SLOTS, JSON.stringify(INITIAL_SLOTS));
-            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(INITIAL_LOGS));
-            localStorage.setItem(STORAGE_KEY_REV, String(INITIAL_REV));
-            return {
-                slots: JSON.parse(JSON.stringify(INITIAL_SLOTS)),
-                logs: JSON.parse(JSON.stringify(INITIAL_LOGS)),
-                revenue: INITIAL_REV
-            };
-        }
-
-        return {
-            slots: JSON.parse(slots),
-            logs: JSON.parse(logs),
-            revenue: Number(rev)
-        };
-    },
-
-    _saveState: function (state) {
-        localStorage.setItem(STORAGE_KEY_SLOTS, JSON.stringify(state.slots));
-        localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(state.logs));
-        localStorage.setItem(STORAGE_KEY_REV, String(state.revenue));
-    },
-
-    getSummary: function () {
-        var self = this;
-        return new Promise(function (resolve) {
-            var state = self._loadState();
-            var total = state.slots.length;
-            var available = 0;
-            var occupied = 0;
-            var reserved = 0;
-
-            for (var i = 0; i < state.slots.length; i++) {
-                if (state.slots[i].status === "AVAILABLE") available++;
-                else if (state.slots[i].status === "OCCUPIED") occupied++;
-                else if (state.slots[i].status === "RESERVED") reserved++;
-            }
-
-            resolve({
-                success: true,
-                data: {
-                    total: total,
-                    available: available,
-                    occupied: occupied,
-                    reserved: reserved,
-                    revenue: state.revenue
-                }
-            });
-        });
-    },
-
-    getSlots: function (filters) {
-        var self = this;
-        return new Promise(function (resolve) {
-            var state = self._loadState();
-            var result = state.slots.filter(function (slot) {
-                if (filters.zone && filters.zone !== "ALL" && slot.zone !== filters.zone) {
-                    return false;
-                }
-                if (filters.status && filters.status !== "ALL" && slot.status !== filters.status) {
-                    return false;
-                }
-                if (filters.ev && filters.ev !== "ALL") {
-                    if (filters.ev === "EV_ONLY" && !slot.hasEV) return false;
-                    if (filters.ev === "NON_EV" && slot.hasEV) return false;
-                }
-                if (filters.search && filters.search.trim() !== "") {
-                    var query = filters.search.trim().toLowerCase();
-                    var matchId = slot.id.toLowerCase().indexOf(query) !== -1;
-                    var matchPlate = (slot.vehicleNo || "").toLowerCase().indexOf(query) !== -1;
-                    var matchDriver = (slot.driver || "").toLowerCase().indexOf(query) !== -1;
-                    if (!matchId && !matchPlate && !matchDriver) {
-                        return false;
-                    }
-                }
-                return true;
-            });
-
-            resolve({
-                success: true,
-                data: result
-            });
-        });
-    },
-
-    getSlotById: function (slotId) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            var state = self._loadState();
-            for (var i = 0; i < state.slots.length; i++) {
-                if (state.slots[i].id === slotId) {
-                    resolve({ success: true, data: state.slots[i] });
-                    return;
-                }
-            }
-            reject(new Error("Slot not found"));
-        });
-    },
-
-    addSlot: function (slotData) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            var state = self._loadState();
-            var cleanId = slotData.id.trim().toUpperCase();
-
-            for (var i = 0; i < state.slots.length; i++) {
-                if (state.slots[i].id === cleanId) {
-                    reject(new Error("Slot ID " + cleanId + " already exists."));
-                    return;
-                }
-            }
-
-            var newSlot = {
-                id: cleanId,
-                zone: slotData.zone,
-                type: slotData.type,
-                status: "AVAILABLE",
-                vehicleNo: "",
-                driver: "",
-                phone: "",
-                entryTime: "",
-                rate: Number(slotData.rate) || 40,
-                hasEV: Boolean(slotData.hasEV)
-            };
-
-            state.slots.push(newSlot);
-            self._saveState(state);
-
-            resolve({
-                success: true,
-                data: newSlot
-            });
-        });
-    },
-
-    parkVehicle: function (payload) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            var state = self._loadState();
-            var targetIndex = -1;
-
-            for (var i = 0; i < state.slots.length; i++) {
-                if (state.slots[i].id === payload.slotId) {
-                    targetIndex = i;
-                    break;
-                }
-            }
-
-            if (targetIndex === -1) {
-                reject(new Error("Invalid slot ID"));
-                return;
-            }
-
-            if (state.slots[targetIndex].status === "OCCUPIED") {
-                reject(new Error("Slot is already occupied"));
-                return;
-            }
-
-            var now = new Date();
-            var timeStr = now.getFullYear() + "-" +
-                String(now.getMonth() + 1).padStart(2, "0") + "-" +
-                String(now.getDate()).padStart(2, "0") + " " +
-                String(now.getHours()).padStart(2, "0") + ":" +
-                String(now.getMinutes()).padStart(2, "0");
-
-            var rate = state.slots[targetIndex].rate || 40;
-            if (payload.vehicleType.indexOf("Bike") !== -1 || payload.vehicleType.indexOf("Scooter") !== -1) {
-                rate = 20;
-            }
-            if (payload.vehicleType.indexOf("EV") !== -1) {
-                rate = 60;
-            }
-
-            state.slots[targetIndex].status = "OCCUPIED";
-            state.slots[targetIndex].type = payload.vehicleType;
-            state.slots[targetIndex].vehicleNo = payload.vehicleNo.toUpperCase();
-            state.slots[targetIndex].driver = payload.driverName;
-            state.slots[targetIndex].phone = payload.driverPhone;
-            state.slots[targetIndex].entryTime = timeStr;
-            state.slots[targetIndex].rate = rate;
-
-            var ticketId = "TKT-" + Math.floor(1000 + Math.random() * 9000);
-            var logEntry = {
-                ticketId: ticketId,
-                slotId: payload.slotId,
-                vehicleNo: payload.vehicleNo.toUpperCase(),
-                type: payload.vehicleType,
-                driver: payload.driverName,
-                phone: payload.driverPhone,
-                entryTime: timeStr,
-                exitTime: "-",
-                status: "ACTIVE",
-                fee: rate
-            };
-
-            state.logs.unshift(logEntry);
-            self._saveState(state);
-
-            resolve({
-                success: true,
-                data: {
-                    slot: state.slots[targetIndex],
-                    ticket: logEntry
-                }
-            });
-        });
-    },
-
-    checkoutVehicle: function (slotId, method) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            var state = self._loadState();
-            var targetIndex = -1;
-
-            for (var i = 0; i < state.slots.length; i++) {
-                if (state.slots[i].id === slotId) {
-                    targetIndex = i;
-                    break;
-                }
-            }
-
-            if (targetIndex === -1 || state.slots[targetIndex].status !== "OCCUPIED") {
-                reject(new Error("Active occupied vehicle not found for slot"));
-                return;
-            }
-
-            var slot = state.slots[targetIndex];
-            var now = new Date();
-            var exitTimeStr = now.getFullYear() + "-" +
-                String(now.getMonth() + 1).padStart(2, "0") + "-" +
-                String(now.getDate()).padStart(2, "0") + " " +
-                String(now.getHours()).padStart(2, "0") + ":" +
-                String(now.getMinutes()).padStart(2, "0");
-
-            var durationHours = 2;
-            var fee = (slot.rate || 40) * durationHours;
-
-            for (var j = 0; j < state.logs.length; j++) {
-                if (state.logs[j].slotId === slotId && state.logs[j].status === "ACTIVE") {
-                    state.logs[j].status = "COMPLETED";
-                    state.logs[j].exitTime = exitTimeStr;
-                    state.logs[j].fee = fee;
-                    state.logs[j].paymentMethod = method || "Cash";
-                    break;
-                }
-            }
-
-            slot.status = "AVAILABLE";
-            slot.vehicleNo = "";
-            slot.driver = "";
-            slot.phone = "";
-            slot.entryTime = "";
-
-            state.revenue += fee;
-            self._saveState(state);
-
-            resolve({
-                success: true,
-                data: {
-                    slotId: slotId,
-                    fee: fee,
-                    exitTime: exitTimeStr
-                }
-            });
-        });
-    },
-
-    getRecentActivity: function () {
-        var self = this;
-        return new Promise(function (resolve) {
-            var state = self._loadState();
-            resolve({
-                success: true,
-                data: state.logs
-            });
-        });
-    },
-
-    resetToDefault: function () {
-        var self = this;
-        return new Promise(function (resolve) {
-            localStorage.setItem(STORAGE_KEY_SLOTS, JSON.stringify(INITIAL_SLOTS));
-            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(INITIAL_LOGS));
-            localStorage.setItem(STORAGE_KEY_REV, String(INITIAL_REV));
-            resolve({ success: true });
-        });
+/* ── Guard: redirect to login if not authenticated ── */
+(function authGuard() {
+    if (!sessionStorage.getItem("sp_logged_in")) {
+        window.location.href = "login.html";
     }
-};
+})();
 
-function showFieldError(inputId, errorId, message) {
-    var el = document.getElementById(inputId);
-    if (el) {
-        el.classList.remove("valid");
-        el.classList.add("error");
-    }
-    var errEl = document.getElementById(errorId);
-    if (errEl) errEl.textContent = message;
-}
-
-function clearFieldError(inputId, errorId) {
-    var el = document.getElementById(inputId);
-    if (el) {
-        el.classList.remove("error");
-        el.classList.add("valid");
-    }
-    var errEl = document.getElementById(errorId);
-    if (errEl) errEl.textContent = "";
-}
-
-function resetFormValidation(formId) {
-    var form = document.getElementById(formId);
-    if (!form) return;
-    var inputs = form.querySelectorAll("input, select");
-    inputs.forEach(function (el) {
-        el.classList.remove("error", "valid");
-    });
-    var errors = form.querySelectorAll(".error-msg");
-    errors.forEach(function (err) {
-        err.textContent = "";
-    });
-}
-
-function validateParkSlot() {
-    var val = document.getElementById("parkSlotSelect").value;
-    if (!val) {
-        showFieldError("parkSlotSelect", "parkSlotError", "Please select an available parking slot.");
-        return false;
-    }
-    clearFieldError("parkSlotSelect", "parkSlotError");
-    return true;
-}
-
-function validateParkVehicleNo() {
-    var val = document.getElementById("parkVehicleNo").value.trim().toUpperCase();
-    if (!val) {
-        showFieldError("parkVehicleNo", "parkVehicleNoError", "Vehicle registration number is required.");
-        return false;
-    }
-    if (!VEHICLE_NO_PATTERN.test(val)) {
-        showFieldError("parkVehicleNo", "parkVehicleNoError", "Enter a valid license plate (6-15 letters, numbers, spaces or hyphens).");
-        return false;
-    }
-    clearFieldError("parkVehicleNo", "parkVehicleNoError");
-    return true;
-}
-
-function validateParkVehicleType() {
-    var val = document.getElementById("parkVehicleType").value;
-    if (!val) {
-        showFieldError("parkVehicleType", "parkVehicleTypeError", "Please select a vehicle category.");
-        return false;
-    }
-    clearFieldError("parkVehicleType", "parkVehicleTypeError");
-    return true;
-}
-
-function validateParkDriverName() {
-    var val = document.getElementById("parkDriverName").value.trim();
-    if (!val) {
-        showFieldError("parkDriverName", "parkDriverNameError", "Driver name is required.");
-        return false;
-    }
-    if (!DRIVER_NAME_PATTERN.test(val)) {
-        showFieldError("parkDriverName", "parkDriverNameError", "Driver name must be 3-60 letters and spaces only.");
-        return false;
-    }
-    clearFieldError("parkDriverName", "parkDriverNameError");
-    return true;
-}
-
-function validateParkDriverPhone() {
-    var val = document.getElementById("parkDriverPhone").value.trim();
-    if (!val) {
-        showFieldError("parkDriverPhone", "parkDriverPhoneError", "Driver contact number is required.");
-        return false;
-    }
-    if (!MOBILE_PATTERN.test(val)) {
-        showFieldError("parkDriverPhone", "parkDriverPhoneError", "Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.");
-        return false;
-    }
-    clearFieldError("parkDriverPhone", "parkDriverPhoneError");
-    return true;
-}
-
-function validateNewSlotId() {
-    var val = document.getElementById("newSlotId").value.trim().toUpperCase();
-    if (!val) {
-        showFieldError("newSlotId", "newSlotIdError", "Slot ID is required.");
-        return false;
-    }
-    if (!SLOT_ID_PATTERN.test(val)) {
-        showFieldError("newSlotId", "newSlotIdError", "Slot ID must be 2-10 letters, numbers, or hyphens (e.g. A-09).");
-        return false;
-    }
-    clearFieldError("newSlotId", "newSlotIdError");
-    return true;
-}
-
-function validateNewSlotZone() {
-    var val = document.getElementById("newSlotZone").value;
-    if (!val) {
-        showFieldError("newSlotZone", "newSlotZoneError", "Please select a parking zone.");
-        return false;
-    }
-    clearFieldError("newSlotZone", "newSlotZoneError");
-    return true;
-}
-
-function validateNewSlotType() {
-    var val = document.getElementById("newSlotType").value;
-    if (!val) {
-        showFieldError("newSlotType", "newSlotTypeError", "Please select a vehicle category.");
-        return false;
-    }
-    clearFieldError("newSlotType", "newSlotTypeError");
-    return true;
-}
-
-function validateNewSlotRate() {
-    var val = document.getElementById("newSlotRate").value.trim();
-    if (!val) {
-        showFieldError("newSlotRate", "newSlotRateError", "Hourly rate is required.");
-        return false;
-    }
-    var num = Number(val);
-    if (isNaN(num) || num < 10 || num > 500) {
-        showFieldError("newSlotRate", "newSlotRateError", "Hourly rate must be between ₹10 and ₹500.");
-        return false;
-    }
-    clearFieldError("newSlotRate", "newSlotRateError");
-    return true;
-}
-
-function getVehicleIcon(type, hasEV) {
-    if (hasEV || type === "EV Vehicle" || type === "EV Charging") {
-        return "⚡🚗";
-    }
-    if (type.indexOf("Scooter") !== -1) {
-        return "🛵";
-    }
-    if (type.indexOf("Bike") !== -1) {
-        return "🏍️";
-    }
-    return "🚗";
-}
-
-var currentActiveCheckoutSlot = null;
-
+/* ── Clock shown in the top header ── */
 function updateClock() {
-    var el = document.getElementById("liveClock");
-    if (!el) return;
-    var now = new Date();
-    el.textContent = now.toLocaleDateString("en-IN", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-    });
+    var now  = new Date();
+    var d    = document.getElementById("headerDate");
+    var t    = document.getElementById("headerTime");
+    if (d) d.textContent = now.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+    if (t) t.textContent = now.toLocaleTimeString("en-IN");
 }
 
-function refreshSummary() {
-    return ParkingAPI.getSummary().then(function (res) {
-        if (!res.success) return;
-        var d = res.data;
-        document.getElementById("statTotalSlots").textContent = d.total;
-        document.getElementById("statAvailableSlots").textContent = d.available;
-        document.getElementById("statOccupiedSlots").textContent = d.occupied;
-        document.getElementById("statReservedSlots").textContent = d.reserved;
-        document.getElementById("statRevenue").textContent = "₹" + d.revenue;
-    });
+/* ── Inject logged-in user name & role into header ── */
+function loadUserHeader() {
+    var name = sessionStorage.getItem("sp_user_name") || "Admin";
+    var role = sessionStorage.getItem("sp_user_role") || "Super Admin";
+    var initials = name.split(" ").map(function (w) { return w ? w[0] : ""; }).join("").toUpperCase().slice(0, 2) || "AD";
+    
+    var avatarEl = document.getElementById("userAvatar") || document.querySelector(".user-avatar");
+    var nameEl   = document.getElementById("userName") || document.querySelector(".user-details .user-name");
+    var roleEl   = document.getElementById("userRole") || document.querySelector(".user-details .user-role");
+    var welcomeHeading = document.getElementById("welcomeHeading") || document.querySelector(".welcome-heading");
+
+    if (avatarEl) avatarEl.textContent = initials;
+    if (nameEl)   nameEl.textContent   = name;
+    if (roleEl)   roleEl.textContent   = role;
+    if (welcomeHeading) {
+        var hour = new Date().getHours();
+        var greeting = hour < 12 ? "Good Morning" : (hour < 17 ? "Good Afternoon" : "Good Evening");
+        welcomeHeading.innerHTML = greeting + ", " + name + ' <span class="wave-emoji">👋</span>';
+    }
 }
 
-function refreshSlots() {
-    var zone = document.getElementById("zoneFilter").value;
-    var status = document.getElementById("statusFilter").value;
-    var ev = document.getElementById("evFilter").value;
-    var search = document.getElementById("slotSearchInput").value;
+/* ── Modal helpers ── */
+function openModal(id)  { document.getElementById(id).classList.remove("hidden"); }
+function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 
-    return ParkingAPI.getSlots({ zone: zone, status: status, ev: ev, search: search }).then(function (res) {
-        if (!res.success) return;
-        var grid = document.getElementById("slotsGrid");
-        grid.innerHTML = "";
+/* ── Fetch ALL slots from API and re-render ── */
+function fetchSlots() {
+    var zoneVal   = document.getElementById("zoneFilter").value;
+    var statusVal = document.getElementById("statusFilter").value;
+    var evVal     = document.getElementById("evFilter").value;
+    var search    = document.getElementById("slotSearchInput").value.trim();
 
-        if (res.data.length === 0) {
-            grid.innerHTML = "<p style='color: #64748b; padding: 24px; grid-column: 1/-1; text-align: center;'>No slots matching the current filter criteria.</p>";
-            return;
-        }
+    var url = "../php/api/slots.php?zone=" + encodeURIComponent(zoneVal) +
+              "&status=" + encodeURIComponent(statusVal) +
+              "&ev=" + encodeURIComponent(evVal) +
+              "&search=" + encodeURIComponent(search);
 
-        res.data.forEach(function (slot) {
-            var card = document.createElement("div");
-            var statusClass = slot.status.toLowerCase();
-            card.className = "slot-card " + statusClass;
-            card.dataset.slotId = slot.id;
-
-            var badgeText = "Available";
-            var badgeClass = "pill-avail";
-            if (slot.status === "OCCUPIED") {
-                badgeText = "Occupied";
-                badgeClass = "pill-occ";
-            } else if (slot.status === "RESERVED") {
-                badgeText = "Reserved";
-                badgeClass = "pill-res";
+    fetch(url)
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+            if (result.success && Array.isArray(result.data)) {
+                slots = result.data;
+                renderDashboard();
             }
+        })
+        .catch(function () {
+            showToast("⚠️ Could not load slots. Is WAMP running?", "error");
+        });
+}
 
-            var iconEmoji = getVehicleIcon(slot.type, slot.hasEV);
-            var evBadgeHtml = slot.hasEV ? "<span class='ev-badge' title='Equipped with EV Station'>⚡ EV</span>" : "";
-
-            var stateBoxHtml = "";
-            var footerBtn = "";
-
-            if (slot.status === "OCCUPIED") {
-                var entryHour = slot.entryTime ? slot.entryTime.split(" ")[1] : "-";
-                stateBoxHtml =
-                    "<div class='slot-state-box box-occupied'>" +
-                        "<div class='plate-row'>" + (slot.vehicleNo || "OCCUPIED") + "</div>" +
-                        "<div class='plate-meta'>" + (slot.driver || "Guest") + " • In: " + entryHour + "</div>" +
-                    "</div>";
-                footerBtn = "<button type='button' class='btn-slot btn-slot-release'>Release &amp; Bill</button>";
-            } else if (slot.status === "AVAILABLE") {
-                stateBoxHtml =
-                    "<div class='slot-state-box box-available'>" +
-                        "<div class='vacant-title'>Available Spot</div>" +
-                        "<div class='vacant-sub'>Ready for vehicle entry</div>" +
-                    "</div>";
-                footerBtn = "<button type='button' class='btn-slot btn-slot-park'>+ Park Vehicle</button>";
-            } else {
-                stateBoxHtml =
-                    "<div class='slot-state-box box-reserved'>" +
-                        "<div class='reserved-title'>" + (slot.driver || "VIP Guest") + "</div>" +
-                        "<div class='reserved-sub'>Reserved space</div>" +
-                    "</div>";
-                footerBtn = "<button type='button' class='btn-slot btn-slot-disabled' disabled>Reserved</button>";
+/* ── Fetch KPI stats from api/stats.php ── */
+function fetchStats() {
+    fetch("../php/api/stats.php")
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+            if (result.success && result.data) {
+                var d = result.data;
+                setText("statTotalSlots",    d.total     || 0);
+                setText("statAvailableSlots",d.available || 0);
+                setText("statOccupiedSlots", d.occupied  || 0);
+                setText("statReservedSlots", d.reserved  || 0);
+                setText("statRevenue",       "₹" + (d.revenue || 0));
+                setText("statVehiclesIn",    d.vehiclesIn  || 0);
+                setText("statVehiclesOut",   d.vehiclesOut || 0);
             }
-
-            card.innerHTML =
-                "<div class='slot-header'>" +
-                    "<div class='slot-title-wrap'>" +
-                        "<div class='vehicle-icon-box'>" + iconEmoji + "</div>" +
-                        "<span class='slot-id'>" + slot.id + "</span>" +
-                    "</div>" +
-                    "<div class='slot-badge-wrap'>" +
-                        evBadgeHtml +
-                        "<span class='slot-status-pill " + badgeClass + "'>" + badgeText + "</span>" +
-                    "</div>" +
-                "</div>" +
-                "<div class='slot-info-row'>" +
-                    "<span class='slot-zone-tag'>" + slot.zone + " • " + slot.type + "</span>" +
-                    "<span class='slot-rate-tag'>₹" + (slot.rate || 40) + "/hr</span>" +
-                "</div>" +
-                stateBoxHtml +
-                "<div class='slot-footer'>" +
-                    footerBtn +
-                "</div>";
-
-            card.addEventListener("click", function (e) {
-                if (e.target.tagName === "BUTTON" && e.target.disabled) return;
-                if (slot.status === "AVAILABLE") {
-                    openParkModal(slot.id);
-                } else if (slot.status === "OCCUPIED") {
-                    openCheckoutModal(slot);
-                }
-            });
-
-            grid.appendChild(card);
-        });
-
-        populateAvailableSlotsDropdown();
-    });
+        })
+        .catch(function () { /* stats missing, not critical */ });
 }
 
-function populateAvailableSlotsDropdown() {
-    var select = document.getElementById("parkSlotSelect");
-    var currentVal = select.value;
-
-    ParkingAPI.getSlots({ zone: "ALL", status: "AVAILABLE", ev: "ALL" }).then(function (res) {
-        if (!res.success) return;
-        select.innerHTML = "<option value=''>-- Choose an Available Slot --</option>";
-        res.data.forEach(function (slot) {
-            var opt = document.createElement("option");
-            opt.value = slot.id;
-            var evLabel = slot.hasEV ? " [⚡ EV]" : "";
-            opt.textContent = slot.id + " (" + slot.zone + " - " + slot.type + evLabel + ")";
-            select.appendChild(opt);
-        });
-
-        if (currentVal) {
-            select.value = currentVal;
-        }
-    });
-}
-
-function refreshActivityLogs() {
-    return ParkingAPI.getRecentActivity().then(function (res) {
-        if (!res.success) return;
-        var tbody = document.getElementById("activityTableBody");
-        tbody.innerHTML = "";
-        document.getElementById("logCount").textContent = res.data.length;
-
-        if (res.data.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='10' style='text-align: center; color: #64748b; padding: 20px;'>No recent parking logs found.</td></tr>";
-            return;
-        }
-
-        res.data.forEach(function (log) {
-            var tr = document.createElement("tr");
-
-            var badgeClass = log.status === "ACTIVE" ? "tbl-badge-active" : "tbl-badge-completed";
-            var actionBtn = "";
-
-            if (log.status === "ACTIVE") {
-                actionBtn = "<button type='button' class='btn btn-secondary btn-sm checkout-row-btn' data-slot='" + log.slotId + "'>Checkout</button>";
-            } else {
-                actionBtn = "<span style='color: #64748b; font-size: 0.8rem; font-weight: 600;'>Completed</span>";
+/* ── Fetch recent activity logs from api/slots.php?mode=logs ── */
+function fetchLogs() {
+    fetch("../php/api/slots.php?mode=logs")
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+            if (result.success && Array.isArray(result.data)) {
+                renderLogsTable(result.data);
             }
+        })
+        .catch(function () { /* non-critical */ });
+}
 
-            tr.innerHTML =
-                "<td><strong>" + log.ticketId + "</strong></td>" +
-                "<td><span style='font-weight: bold; color: #1a7a4a;'>" + log.slotId + "</span></td>" +
-                "<td><code style='font-weight: bold;'>" + log.vehicleNo + "</code></td>" +
-                "<td>" + log.type + "</td>" +
-                "<td>" + (log.driver || "-") + " (" + (log.phone || "-") + ")</td>" +
-                "<td>" + log.entryTime + "</td>" +
-                "<td>" + log.exitTime + "</td>" +
-                "<td><span class='tbl-badge " + badgeClass + "'>" + log.status + "</span></td>" +
-                "<td>₹" + (log.fee || 0) + "</td>" +
-                "<td>" + actionBtn + "</td>";
+/* ── Helper: safely set element text ── */
+function setText(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
 
-            tbody.appendChild(tr);
-        });
+/* ── Render the main slot grid and activity table ── */
+function renderDashboard() {
+    renderSlotsGrid(slots);
+    populateAvailableSlotDropdown(slots);
+    highlightFilterPill();
+    fetchStats(); // Refresh KPI numbers from DB each render
+    fetchLogs();  // Refresh activity log
+}
 
-        var checkoutButtons = tbody.querySelectorAll(".checkout-row-btn");
-        checkoutButtons.forEach(function (btn) {
-            btn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                var slotId = this.dataset.slot;
-                ParkingAPI.getSlotById(slotId).then(function (res) {
-                    if (res.success) {
-                        openCheckoutModal(res.data);
-                    }
-                });
-            });
-        });
+/* ── Highlight the hero stat card matching the active status filter ── */
+function highlightFilterPill() {
+    var statusVal = document.getElementById("statusFilter").value;
+    document.querySelectorAll(".hero-stat-card").forEach(function (card) {
+        card.classList.toggle("active-stat", card.getAttribute("data-status") === statusVal);
     });
 }
 
-function openAddSlotModal() {
-    resetFormValidation("addSlotForm");
-    var modal = document.getElementById("addSlotModal");
-    document.getElementById("newSlotId").value = "";
-    document.getElementById("newSlotZone").value = "";
-    document.getElementById("newSlotType").value = "";
-    document.getElementById("newSlotRate").value = "40";
-    document.getElementById("newSlotHasEV").checked = false;
-    modal.classList.remove("hidden");
-    document.getElementById("newSlotId").focus();
-}
+/* ── Render parking slot cards into the grid ── */
+function renderSlotsGrid(data) {
+    var grid = document.getElementById("slotsGrid");
+    grid.innerHTML = "";
 
-function closeAddSlotModal() {
-    document.getElementById("addSlotModal").classList.add("hidden");
-}
+    // Zone progress bar
+    var usedCount = data.filter(function (s) { return s.status === "OCCUPIED" || s.status === "RESERVED"; }).length;
+    var ratioEl = document.getElementById("zoneSlotsRatio");
+    var fillEl  = document.getElementById("zoneProgressFill");
+    if (ratioEl) ratioEl.textContent = usedCount + " / " + data.length + " slots";
+    if (fillEl)  fillEl.style.width  = (data.length > 0 ? Math.round((usedCount / data.length) * 100) : 0) + "%";
 
-function handleAddSlotSubmit(e) {
-    e.preventDefault();
-
-    var okId = validateNewSlotId();
-    var okZone = validateNewSlotZone();
-    var okType = validateNewSlotType();
-    var okRate = validateNewSlotRate();
-
-    if (!okId || !okZone || !okType || !okRate) {
-        var firstError = document.querySelector("#addSlotForm .error");
-        if (firstError) firstError.focus();
+    if (data.length === 0) {
+        grid.innerHTML = "<p style='color:#64748b;padding:24px;grid-column:1/-1;text-align:center;'>No slots match the current filter.</p>";
         return;
     }
 
-    var slotId = document.getElementById("newSlotId").value.trim().toUpperCase();
-    var zone = document.getElementById("newSlotZone").value;
-    var type = document.getElementById("newSlotType").value;
-    var rate = document.getElementById("newSlotRate").value;
-    var hasEV = document.getElementById("newSlotHasEV").checked;
+    data.forEach(function (slot) {
+        var card = document.createElement("div");
+        var slotNum   = slot.slot_number || slot.id || "—";
+        var vType     = slot.vehicle_type || slot.type || "—";
+        var rate      = (slot.hourly_rate !== undefined ? slot.hourly_rate : slot.rate) || 0;
+        var hasEV     = slot.hasEV || slot.has_ev || false;
+        var vehNo     = slot.vehicle_number || slot.vehicleNo || "";
+        var driver    = slot.driver_name || slot.driver || "";
+        var entryTime = slot.entry_time || slot.entryTime || "";
 
-    ParkingAPI.addSlot({
-        id: slotId,
-        zone: zone,
-        type: type,
-        rate: rate,
-        hasEV: hasEV
-    }).then(function () {
-        closeAddSlotModal();
-        refreshSummary();
-        refreshSlots();
-    }).catch(function (err) {
-        showFieldError("newSlotId", "newSlotIdError", err.message);
-        document.getElementById("newSlotId").focus();
+        var isEV = hasEV ? " ev-slot" : "";
+        card.className = "slot-card " + slot.status.toLowerCase() + isEV;
+
+        // Status-specific icon
+        var icon = slot.status === "RESERVED"
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>'
+            : slot.status === "OCCUPIED"
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+
+        // Action button
+        var actionBtn = slot.status === "AVAILABLE"
+            ? '<button class="slot-btn slot-btn-park" onclick="openParkModal(\'' + slotNum + '\')">Park Vehicle</button>'
+            : slot.status === "OCCUPIED"
+            ? '<button class="slot-btn slot-btn-checkout" onclick="openCheckoutModal(\'' + slotNum + '\')">Checkout</button>'
+            : '<span style="font-size:0.75rem;color:#92400e;font-weight:600;">Reserved</span>';
+
+        // EV badge
+        var evBadge = hasEV ? '<span class="ev-badge">⚡ EV</span>' : '';
+
+        // Occupied info
+        var occupiedInfo = slot.status === "OCCUPIED"
+            ? '<div class="slot-vehicle-info"><p><strong>' + (vehNo || "—") + '</strong></p><p style="font-size:0.75rem;color:#64748b;">' + (driver || "") + (entryTime ? ' • ' + entryTime : '') + '</p></div>'
+            : '';
+
+        card.innerHTML =
+            '<div class="slot-card-header">' +
+                '<div class="slot-icon">' + icon + '</div>' +
+                '<div>' +
+                    '<div class="slot-id">' + slotNum + '</div>' +
+                    '<div class="slot-type">' + vType + '</div>' +
+                '</div>' +
+                evBadge +
+            '</div>' +
+            '<div class="slot-status-badge status-' + slot.status.toLowerCase() + '">' + slot.status + '</div>' +
+            occupiedInfo +
+            '<div class="slot-meta">₹' + rate + '/hr</div>' +
+            '<div class="slot-actions">' + actionBtn + '</div>';
+
+        grid.appendChild(card);
     });
 }
 
-function openParkModal(preselectedSlotId) {
-    resetFormValidation("parkForm");
-    var modal = document.getElementById("parkModal");
-    var select = document.getElementById("parkSlotSelect");
-
-    document.getElementById("parkVehicleNo").value = "";
-    document.getElementById("parkVehicleType").value = "";
-    document.getElementById("parkDriverName").value = "";
-    document.getElementById("parkDriverPhone").value = "";
-
-    ParkingAPI.getSlots({ zone: "ALL", status: "AVAILABLE", ev: "ALL" }).then(function (res) {
-        select.innerHTML = "<option value=''>-- Choose an Available Slot --</option>";
-        res.data.forEach(function (slot) {
+/* ── Populate available slots dropdown in the Park modal ── */
+function populateAvailableSlotDropdown(data) {
+    var sel = document.getElementById("parkSlotSelect");
+    if (!sel) return;
+    var prev = sel.value;
+    sel.innerHTML = '<option value="">-- Select Available Slot --</option>';
+    data.filter(function (s) { return s.status === "AVAILABLE"; })
+        .forEach(function (s) {
+            var slotNum = s.slot_number || s.id || "";
+            var vType   = s.vehicle_type || s.type || "";
+            var rate    = (s.hourly_rate !== undefined ? s.hourly_rate : s.rate) || 0;
             var opt = document.createElement("option");
-            opt.value = slot.id;
-            var evLabel = slot.hasEV ? " [⚡ EV]" : "";
-            opt.textContent = slot.id + " (" + slot.zone + " - " + slot.type + evLabel + ")";
-            select.appendChild(opt);
+            opt.value = slotNum;
+            opt.textContent = slotNum + " (" + vType + " • ₹" + rate + "/hr)";
+            sel.appendChild(opt);
         });
-
-        if (preselectedSlotId) {
-            select.value = preselectedSlotId;
-            validateParkSlot();
-        }
-
-        modal.classList.remove("hidden");
-        document.getElementById("parkVehicleNo").focus();
-    });
+    if (prev) sel.value = prev;
 }
 
-function closeParkModal() {
-    document.getElementById("parkModal").classList.add("hidden");
-}
+/* ── Render the recent activity log table ── */
+function renderLogsTable(logs) {
+    var tbody = document.getElementById("activityTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
 
-function openCheckoutModal(slot) {
-    currentActiveCheckoutSlot = slot;
-    var modal = document.getElementById("checkoutModal");
-
-    var evIndicator = slot.hasEV ? " [⚡ EV Station]" : "";
-    document.getElementById("chkSlotId").textContent = slot.id + evIndicator;
-    document.getElementById("chkVehicleNo").textContent = slot.vehicleNo || "-";
-    document.getElementById("chkVehicleType").textContent = slot.type + " (₹" + (slot.rate || 40) + "/hr)";
-    document.getElementById("chkDriver").textContent = (slot.driver || "Guest") + (slot.phone ? " • " + slot.phone : "");
-    document.getElementById("chkEntryTime").textContent = slot.entryTime || "Earlier today";
-
-    var now = new Date();
-    var timeStr = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
-    document.getElementById("chkExitTime").textContent = "Now (" + timeStr + ")";
-    document.getElementById("chkDuration").textContent = "2 Hours (Standard Minimum)";
-
-    var rate = slot.rate || 40;
-    var total = rate * 2;
-    document.getElementById("chkTotalFee").textContent = "₹" + total;
-
-    modal.classList.remove("hidden");
-}
-
-function closeCheckoutModal() {
-    currentActiveCheckoutSlot = null;
-    document.getElementById("checkoutModal").classList.add("hidden");
-}
-
-function handleParkFormSubmit(e) {
-    e.preventDefault();
-
-    var okSlot = validateParkSlot();
-    var okVehicleNo = validateParkVehicleNo();
-    var okType = validateParkVehicleType();
-    var okDriver = validateParkDriverName();
-    var okPhone = validateParkDriverPhone();
-
-    if (!okSlot || !okVehicleNo || !okType || !okDriver || !okPhone) {
-        var firstError = document.querySelector("#parkForm .error");
-        if (firstError) firstError.focus();
+    if (!logs || logs.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;color:#64748b;padding:20px;'>No activity recorded yet. Park a vehicle to get started.</td></tr>";
         return;
     }
 
-    var slotId = document.getElementById("parkSlotSelect").value;
-    var vehicleNo = document.getElementById("parkVehicleNo").value.trim().toUpperCase();
-    var vehicleType = document.getElementById("parkVehicleType").value;
-    var driverName = document.getElementById("parkDriverName").value.trim();
-    var driverPhone = document.getElementById("parkDriverPhone").value.trim();
-
-    ParkingAPI.parkVehicle({
-        slotId: slotId,
-        vehicleNo: vehicleNo,
-        vehicleType: vehicleType,
-        driverName: driverName,
-        driverPhone: driverPhone
-    }).then(function () {
-        closeParkModal();
-        refreshSummary();
-        refreshSlots();
-        refreshActivityLogs();
-    }).catch(function (err) {
-        showFieldError("parkSlotSelect", "parkSlotError", err.message);
+    logs.forEach(function (log) {
+        var statusBadge = log.booking_status === "ACTIVE"
+            ? "<span class='tbl-badge tbl-badge-active'>Active</span>"
+            : "<span class='tbl-badge' style='background:#f1f5f9;color:#64748b;'>Completed</span>";
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+            "<td><code style='font-size:0.8rem;'>" + (log.booking_id || "—") + "</code></td>" +
+            "<td><strong>" + (log.slot_number || "—") + "</strong></td>" +
+            "<td><code>" + (log.vehicle_number || "—") + "</code></td>" +
+            "<td>" + (log.vehicle_type || "—") + "</td>" +
+            "<td>" + (log.driver_name || "Guest") + "</td>" +
+            "<td><small>" + (log.start_time || "—") + "</small></td>" +
+            "<td><small>" + (log.end_time || "—") + "</small></td>" +
+            "<td>" + statusBadge + "</td>";
+        tbody.appendChild(tr);
     });
 }
 
-function handleConfirmCheckout() {
-    if (!currentActiveCheckoutSlot) return;
-
-    var method = document.getElementById("paymentMethod").value;
-    var slotId = currentActiveCheckoutSlot.id;
-
-    ParkingAPI.checkoutVehicle(slotId, method).then(function () {
-        closeCheckoutModal();
-        refreshSummary();
-        refreshSlots();
-        refreshActivityLogs();
-    }).catch(function (err) {
-        alert("Checkout Failed: " + err.message);
-    });
+/* ── Open Park Vehicle modal — optionally pre-select a slot ── */
+function openParkModal(preselectedSlotNo) {
+    document.getElementById("parkForm").reset();
+    populateAvailableSlotDropdown(slots);
+    if (preselectedSlotNo) {
+        document.getElementById("parkSlotSelect").value = preselectedSlotNo;
+    }
+    openModal("parkModal");
+    document.getElementById("parkVehicleNo").focus();
 }
 
+/* ── Open Checkout modal for a specific occupied slot ── */
+function openCheckoutModal(slotNumber) {
+    var slot = slots.find(function (s) { return (s.slot_number === slotNumber || s.id === slotNumber); });
+    if (!slot) return;
+    activeCheckoutSlot = slot;
+
+    var slotNum   = slot.slot_number || slot.id || "—";
+    var vehNo     = slot.vehicle_number || slot.vehicleNo || "—";
+    var driver    = slot.driver_name || slot.driver || "—";
+    var entryTime = slot.entry_time || slot.entryTime || "—";
+    var rate      = (slot.hourly_rate !== undefined ? slot.hourly_rate : slot.rate) || 40;
+
+    // Populate checkout summary
+    setText("chkSlotId",     slotNum);
+    setText("chkVehicleNo",  vehNo);
+    setText("chkDriver",     driver);
+    setText("chkEntryTime",  entryTime);
+    setText("chkExitTime",   "Now");
+
+    // Estimate fee (hourly_rate × 2hrs minimum — real calc done by PHP)
+    setText("chkTotalFee",   "₹" + (rate * 2) + " (approx.)");
+    openModal("checkoutModal");
+}
+
+/* ── Show a brief toast notification ── */
+function showToast(message, type) {
+    var toast = document.getElementById("toastNotification");
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className   = "toast-notification " + (type === "error" ? "toast-error" : "toast-success");
+    toast.style.display = "block";
+    setTimeout(function () { toast.style.display = "none"; }, 3500);
+}
+
+/* ── DOM ready: wire all events ── */
 document.addEventListener("DOMContentLoaded", function () {
+    loadUserHeader();
     updateClock();
     setInterval(updateClock, 1000);
+    fetchSlots(); // Initial load from DB
 
-    refreshSummary();
-    refreshSlots();
-    refreshActivityLogs();
+    // Filter controls
+    document.getElementById("slotSearchInput").addEventListener("input",  fetchSlots);
+    document.getElementById("zoneFilter").addEventListener("change",      fetchSlots);
+    document.getElementById("statusFilter").addEventListener("change",    fetchSlots);
+    document.getElementById("evFilter").addEventListener("change",        fetchSlots);
 
-    document.getElementById("slotSearchInput").addEventListener("input", refreshSlots);
-    document.getElementById("zoneFilter").addEventListener("change", refreshSlots);
-    document.getElementById("statusFilter").addEventListener("change", refreshSlots);
-    document.getElementById("evFilter").addEventListener("change", refreshSlots);
-
-    var parkSlotSelect = document.getElementById("parkSlotSelect");
-    var parkVehicleNo = document.getElementById("parkVehicleNo");
-    var parkVehicleType = document.getElementById("parkVehicleType");
-    var parkDriverName = document.getElementById("parkDriverName");
-    var parkDriverPhone = document.getElementById("parkDriverPhone");
-
-    parkSlotSelect.addEventListener("change", validateParkSlot);
-    parkSlotSelect.addEventListener("blur", validateParkSlot);
-
-    parkVehicleNo.addEventListener("input", function () {
-        if (parkVehicleNo.classList.contains("error")) validateParkVehicleNo();
-    });
-    parkVehicleNo.addEventListener("blur", validateParkVehicleNo);
-
-    parkVehicleType.addEventListener("change", validateParkVehicleType);
-    parkVehicleType.addEventListener("blur", validateParkVehicleType);
-
-    parkDriverName.addEventListener("input", function () {
-        if (parkDriverName.classList.contains("error")) validateParkDriverName();
-    });
-    parkDriverName.addEventListener("blur", validateParkDriverName);
-
-    parkDriverPhone.addEventListener("input", function () {
-        if (parkDriverPhone.classList.contains("error")) validateParkDriverPhone();
-    });
-    parkDriverPhone.addEventListener("blur", validateParkDriverPhone);
-
-    var newSlotId = document.getElementById("newSlotId");
-    var newSlotZone = document.getElementById("newSlotZone");
-    var newSlotType = document.getElementById("newSlotType");
-    var newSlotRate = document.getElementById("newSlotRate");
-
-    newSlotId.addEventListener("input", function () {
-        if (newSlotId.classList.contains("error")) validateNewSlotId();
-    });
-    newSlotId.addEventListener("blur", validateNewSlotId);
-
-    newSlotZone.addEventListener("change", validateNewSlotZone);
-    newSlotZone.addEventListener("blur", validateNewSlotZone);
-
-    newSlotType.addEventListener("change", validateNewSlotType);
-    newSlotType.addEventListener("blur", validateNewSlotType);
-
-    newSlotRate.addEventListener("input", function () {
-        if (newSlotRate.classList.contains("error")) validateNewSlotRate();
-    });
-    newSlotRate.addEventListener("blur", validateNewSlotRate);
-
-    document.getElementById("openAddSlotBtn").addEventListener("click", openAddSlotModal);
-    document.getElementById("closeAddSlotModalBtn").addEventListener("click", closeAddSlotModal);
-    document.getElementById("cancelAddSlotBtn").addEventListener("click", closeAddSlotModal);
-    document.getElementById("addSlotForm").addEventListener("submit", handleAddSlotSubmit);
-
-    document.getElementById("openParkModalBtn").addEventListener("click", function () {
-        openParkModal(null);
+    // Hero stat card click → quick filter by status
+    document.querySelectorAll(".hero-stat-card").forEach(function (card) {
+        card.addEventListener("click", function () {
+            var s = this.getAttribute("data-status");
+            if (s) { document.getElementById("statusFilter").value = s; fetchSlots(); }
+        });
     });
 
-    document.getElementById("closeParkModalBtn").addEventListener("click", closeParkModal);
-    document.getElementById("cancelParkBtn").addEventListener("click", closeParkModal);
+    // Add Slot modal
+    document.getElementById("openAddSlotBtn").addEventListener("click",     function () { document.getElementById("addSlotForm").reset(); openModal("addSlotModal"); document.getElementById("newSlotId").focus(); });
+    document.getElementById("closeAddSlotModalBtn").addEventListener("click",function () { closeModal("addSlotModal"); });
+    document.getElementById("cancelAddSlotBtn").addEventListener("click",   function () { closeModal("addSlotModal"); });
 
-    document.getElementById("closeCheckoutModalBtn").addEventListener("click", closeCheckoutModal);
-    document.getElementById("cancelCheckoutBtn").addEventListener("click", closeCheckoutModal);
+    // Park Vehicle modal
+    document.getElementById("openParkModalBtn").addEventListener("click",   function () { openParkModal(null); });
+    document.getElementById("closeParkModalBtn").addEventListener("click",  function () { closeModal("parkModal"); });
+    document.getElementById("cancelParkBtn").addEventListener("click",      function () { closeModal("parkModal"); });
 
-    document.getElementById("parkForm").addEventListener("submit", handleParkFormSubmit);
-    document.getElementById("confirmCheckoutBtn").addEventListener("click", handleConfirmCheckout);
+    // Checkout modal
+    document.getElementById("closeCheckoutModalBtn").addEventListener("click", function () { closeModal("checkoutModal"); activeCheckoutSlot = null; });
+    document.getElementById("cancelCheckoutBtn").addEventListener("click",      function () { closeModal("checkoutModal"); activeCheckoutSlot = null; });
 
-    document.getElementById("resetDataBtn").addEventListener("click", function () {
-        if (confirm("Reset all parking slots and logs back to initial dummy database state?")) {
-            ParkingAPI.resetToDefault().then(function () {
-                refreshSummary();
-                refreshSlots();
-                refreshActivityLogs();
-            });
-        }
-    });
-
+    // Backdrop click closes modals
     window.addEventListener("click", function (e) {
-        var pModal = document.getElementById("parkModal");
-        var cModal = document.getElementById("checkoutModal");
-        var aModal = document.getElementById("addSlotModal");
-        if (e.target === pModal) closeParkModal();
-        if (e.target === cModal) closeCheckoutModal();
-        if (e.target === aModal) closeAddSlotModal();
+        if (e.target.id === "parkModal")     { closeModal("parkModal");     activeCheckoutSlot = null; }
+        if (e.target.id === "checkoutModal") { closeModal("checkoutModal"); activeCheckoutSlot = null; }
+        if (e.target.id === "addSlotModal")  { closeModal("addSlotModal");  }
     });
+
+    // ── Add Slot: POST to api/slots.php ──
+    document.getElementById("addSlotForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var id   = document.getElementById("newSlotId").value.trim().toUpperCase();
+        var zone = document.getElementById("newSlotZone").value;
+        var type = document.getElementById("newSlotType").value;
+        var rate = Number(document.getElementById("newSlotRate").value) || 40;
+        var hasEV= document.getElementById("newSlotHasEV").checked;
+
+        if (!id || !zone || !type) { alert("Please fill all required fields."); return; }
+
+        fetch("../php/api/slots.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slot_number: id, zone: zone, vehicle_type: type, hourly_rate: rate, has_ev: hasEV })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            closeModal("addSlotModal");
+            showToast(res.message || "Slot added.", res.success ? "success" : "error");
+            if (res.success) fetchSlots();
+        })
+        .catch(function () { showToast("⚠️ Network error.", "error"); });
+    });
+
+    // ── Park Vehicle: POST to api/park.php ──
+    document.getElementById("parkForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var slotId  = document.getElementById("parkSlotSelect").value;
+        var vehNo   = document.getElementById("parkVehicleNo").value.trim().toUpperCase();
+        var vehType = document.getElementById("parkVehicleType").value;
+        var dName   = document.getElementById("parkDriverName").value.trim();
+        var dPhone  = document.getElementById("parkDriverPhone").value.trim();
+
+        if (!slotId || !vehNo || !vehType) { alert("Slot, vehicle plate, and type are required."); return; }
+
+        fetch("../php/api/park.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slotId: slotId, vehicleNo: vehNo, vehicleType: vehType, driverName: dName, driverPhone: dPhone })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            closeModal("parkModal");
+            showToast(res.message || (res.success ? "Vehicle parked." : "Error."), res.success ? "success" : "error");
+            if (res.success) fetchSlots(); // Refresh from DB
+        })
+        .catch(function () { showToast("⚠️ Network error.", "error"); });
+    });
+
+    // ── Confirm Checkout: POST to api/checkout.php ──
+    document.getElementById("confirmCheckoutBtn").addEventListener("click", function () {
+        if (!activeCheckoutSlot) return;
+        var payMode = document.getElementById("paymentMethod").value;
+
+        var targetSlotNo = activeCheckoutSlot.slot_number || activeCheckoutSlot.id;
+        fetch("../php/api/checkout.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slotId: targetSlotNo, paymentMode: payMode })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+            closeModal("checkoutModal");
+            activeCheckoutSlot = null;
+            showToast(res.message || (res.success ? "Checkout complete." : "Error."), res.success ? "success" : "error");
+            if (res.success) fetchSlots(); // Refresh from DB
+        })
+        .catch(function () { showToast("⚠️ Network error.", "error"); });
+    });
+
+    // Logout
+    var logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        });
+    }
 });
