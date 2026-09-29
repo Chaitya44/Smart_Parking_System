@@ -154,45 +154,78 @@ function renderSlotsGrid(data) {
         var vehNo     = slot.vehicle_number || slot.vehicleNo || "";
         var driver    = slot.driver_name || slot.driver || "";
         var entryTime = slot.entry_time || slot.entryTime || "";
+        var status    = (slot.status || "AVAILABLE").toUpperCase();
 
         var isEV = hasEV ? " ev-slot" : "";
-        card.className = "slot-card " + slot.status.toLowerCase() + isEV;
+        card.className = "slot-card " + status.toLowerCase() + isEV;
 
-        // Status-specific icon
-        var icon = slot.status === "RESERVED"
-            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>'
-            : slot.status === "OCCUPIED"
-            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>'
-            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+        var iconHtml = "";
+        var squareClass = "";
+        var badgeHtml = "";
+        var middleHtml = "";
+        var actionHtml = "";
 
-        // Action button
-        var actionBtn = slot.status === "AVAILABLE"
-            ? '<button class="slot-btn slot-btn-park" onclick="openParkModal(\'' + slotNum + '\')">Park Vehicle</button>'
-            : slot.status === "OCCUPIED"
-            ? '<button class="slot-btn slot-btn-checkout" onclick="openCheckoutModal(\'' + slotNum + '\')">Checkout</button>'
-            : '<span style="font-size:0.75rem;color:#92400e;font-weight:600;">Reserved</span>';
+        var evBadgeHtml = hasEV ? '<span class="card-ev-badge"><span class="ev-bolt">⚡</span> EV</span>' : '';
 
-        // EV badge
-        var evBadge = hasEV ? '<span class="ev-badge">⚡ EV</span>' : '';
-
-        // Occupied info
-        var occupiedInfo = slot.status === "OCCUPIED"
-            ? '<div class="slot-vehicle-info"><p><strong>' + (vehNo || "—") + '</strong></p><p style="font-size:0.75rem;color:#64748b;">' + (driver || "") + (entryTime ? ' • ' + entryTime : '') + '</p></div>'
-            : '';
+        if (status === "OCCUPIED") {
+            squareClass = "square-occupied";
+            iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>';
+            badgeHtml = '<span class="card-status-badge badge-occ"><span class="status-dot dot-occ"></span> Occupied</span>';
+            middleHtml = '<div class="card-middle-content occ-content">' +
+                '<div class="plate-row">' + (vehNo || "—") + '</div>' +
+                '<div class="driver-row">' +
+                    '<svg class="driver-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' +
+                    '<span>' + (driver || "Driver") + (entryTime ? ' • ' + (entryTime.length > 8 ? entryTime.slice(-8) : entryTime) : '') + '</span>' +
+                '</div>' +
+            '</div>';
+            actionHtml = '<button type="button" class="card-action-btn btn-occ-action" onclick="openCheckoutModal(\'' + slotNum + '\')">' +
+                '<div class="btn-left">' +
+                    '<svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>' +
+                    '<span>Checkout</span>' +
+                '</div>' +
+                '<span class="btn-arrow">→</span>' +
+            '</button>';
+        } else if (status === "RESERVED") {
+            squareClass = "square-reserved";
+            iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>';
+            badgeHtml = '<span class="card-status-badge badge-res"><span class="res-crown">👑</span> Reserved</span>';
+            middleHtml = '<div class="card-middle-content res-content">' +
+                '<div class="vip-name">Reserved Space</div>' +
+                '<div class="res-subtext">VIP / Permit Holder</div>' +
+            '</div>';
+            actionHtml = '<div class="card-action-btn btn-res-action"><span>Reserved</span></div>';
+        } else {
+            squareClass = "square-available";
+            iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+            badgeHtml = '<span class="card-status-badge badge-avail"><span class="status-dot dot-avail"></span> Available</span>';
+            middleHtml = '<div class="card-middle-content avail-content">' +
+                '<div class="vacant-subtext">Ready for Check-in</div>' +
+            '</div>';
+            actionHtml = '<button type="button" class="card-action-btn btn-avail-action" onclick="openParkModal(\'' + slotNum + '\')">' +
+                '<div class="btn-left"><span class="btn-plus">+</span><span>Park Vehicle</span></div>' +
+                '<span class="btn-arrow">→</span>' +
+            '</button>';
+        }
 
         card.innerHTML =
-            '<div class="slot-card-header">' +
-                '<div class="slot-icon">' + icon + '</div>' +
-                '<div>' +
-                    '<div class="slot-id">' + slotNum + '</div>' +
-                    '<div class="slot-type">' + vType + '</div>' +
+            '<div class="card-header-row">' +
+                '<div class="card-header-left">' +
+                    '<div class="card-icon-square ' + squareClass + '">' + iconHtml + '</div>' +
+                    '<div class="card-id-group">' +
+                        '<span class="card-slot-id">' + slotNum + '</span>' +
+                        '<span class="card-slot-sub">' + vType + '</span>' +
+                    '</div>' +
                 '</div>' +
-                evBadge +
+                '<div class="card-header-right">' +
+                    '<div class="card-badges-row">' +
+                        evBadgeHtml +
+                        badgeHtml +
+                    '</div>' +
+                    '<span class="card-rate-text">₹' + rate + '/hr</span>' +
+                '</div>' +
             '</div>' +
-            '<div class="slot-status-badge status-' + slot.status.toLowerCase() + '">' + slot.status + '</div>' +
-            occupiedInfo +
-            '<div class="slot-meta">₹' + rate + '/hr</div>' +
-            '<div class="slot-actions">' + actionBtn + '</div>';
+            middleHtml +
+            actionHtml;
 
         grid.appendChild(card);
     });
