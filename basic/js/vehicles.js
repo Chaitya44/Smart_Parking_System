@@ -132,7 +132,18 @@ document.addEventListener("DOMContentLoaded", function () {
         var now = new Date();
         var d = document.getElementById("headerDate"); var t = document.getElementById("headerTime");
         if (d) d.textContent = now.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
-        if (t) t.textContent = now.toLocaleTimeString("en-IN");
+        if (t) t.textContent = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
     }
     tick(); setInterval(tick, 1000);
+
+    // Role restrictions for customer logins
+    var role = (sessionStorage.getItem("sp_user_role") || "").trim().toLowerCase();
+    var isUser = (role === "customer" || role === "user" || (!role.includes("admin") && !role.includes("operator") && !role.includes("manager") && !role.includes("staff")));
+    if (isUser) {
+        var adminPages = ["transactions.html", "reports.html", "users.html", "settings.html"];
+        adminPages.forEach(function (page) {
+            var el = document.querySelector('a.nav-item[href*="' + page + '"]');
+            if (el) el.style.display = "none";
+        });
+    }
 });

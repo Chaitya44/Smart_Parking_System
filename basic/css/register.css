@@ -1,30 +1,81 @@
-* {
+/* ==========================================================================
+   Smart Parking System - Ultra-Modern Registration Page Design System
+   Matches Dashboard & Home Theme: Deep Emerald, Clean Glassmorphism & Modern Typography
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary: #064e3b;
+    --primary-dark: #022c22;
+    --primary-hover: #043729;
+    --accent: #10b981;
+    --accent-dark: #059669;
+    --accent-light: #ecfdf5;
+    --accent-border: #a7f3d0;
+    
+    --bg-page: #f8fafc;
+    --surface: #ffffff;
+    --surface-border: #e2e8f0;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --error: #ef4444;
+    --error-bg: #fef2f2;
+    --error-border: #fca5a5;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 22px;
+    --radius-full: 9999px;
+    
+    --shadow-card: 0 16px 40px -6px rgba(15, 23, 42, 0.09), 0 4px 14px -2px rgba(15, 23, 42, 0.04);
+    --shadow-input-focus: 0 0 0 3.5px rgba(16, 185, 129, 0.18);
+    --shadow-error-focus: 0 0 0 3.5px rgba(239, 68, 68, 0.18);
+    
+    --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
-    background-color: #f0f2f0;
-    color: #222222;
+    line-height: 1.6;
+    background-color: var(--bg-page);
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 90% 90%, rgba(6, 78, 59, 0.07) 0%, transparent 45%);
+    color: var(--text-primary);
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 36px 16px;
+    -webkit-font-smoothing: antialiased;
 }
 
+/* ── Container Card ── */
 .card {
-    background-color: #ffffff;
+    background-color: var(--surface);
     width: 100%;
-    max-width: 550px;
-    border-radius: 10px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
-    padding: 36px 40px;
+    max-width: 560px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-card);
+    padding: 42px 40px;
+    position: relative;
+    transition: var(--transition);
 }
 
+/* ── Header & Brand ── */
 .card-header {
     text-align: center;
     margin-bottom: 28px;
@@ -33,48 +84,55 @@ body {
 .logo-box {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
+    gap: 12px;
+    margin-bottom: 10px;
+    text-decoration: none;
 }
 
 .logo-icon {
-    width: 42px;
-    height: 42px;
-    background-color: #1a7a4a;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
+    border-radius: 12px;
     color: #ffffff;
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 850;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
 }
 
 .logo-title {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #1a7a4a;
+    font-size: 1.45rem;
+    font-weight: 850;
+    color: var(--primary);
+    letter-spacing: -0.025em;
+    line-height: 1;
 }
 
 .card-subtitle {
-    color: #666666;
-    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-size: 0.94rem;
+    font-weight: 500;
 }
 
+/* ── Form Controls ── */
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+    position: relative;
 }
 
 label {
     display: block;
-    font-weight: bold;
+    font-weight: 700;
     font-size: 0.88rem;
-    color: #333333;
-    margin-bottom: 5px;
+    color: var(--text-primary);
+    margin-bottom: 7px;
 }
 
 .required-star {
-    color: #cc0000;
+    color: var(--error);
     margin-left: 2px;
 }
 
@@ -84,185 +142,237 @@ input[type="tel"],
 input[type="password"],
 textarea {
     width: 100%;
-    padding: 10px 13px;
-    border: 1.5px solid #cccccc;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--surface-border);
+    border-radius: var(--radius-md);
     font-size: 0.95rem;
-    font-family: Arial, sans-serif;
-    color: #222222;
-    background-color: #fafafa;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: #fafbfc;
     outline: none;
-    transition: border-color 0.2s;
+    transition: var(--transition);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #a0aec0;
+}
+
+input:hover,
+textarea:hover {
+    border-color: #cbd5e1;
+    background-color: #ffffff;
 }
 
 input:focus,
 textarea:focus {
-    border-color: #1a7a4a;
+    border-color: var(--accent);
     background-color: #ffffff;
+    box-shadow: var(--shadow-input-focus);
 }
 
 input.error,
 textarea.error {
-    border-color: #cc0000;
-    background-color: #fff8f8;
+    border-color: var(--error);
+    background-color: #fffafb;
+    box-shadow: var(--shadow-error-focus);
 }
 
 input.valid,
 textarea.valid {
-    border-color: #1a7a4a;
+    border-color: var(--accent-border);
+    background-color: #ffffff;
 }
 
 textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 84px;
+    line-height: 1.55;
 }
 
 .error-msg {
     display: block;
-    color: #cc0000;
+    color: var(--error);
     font-size: 0.80rem;
-    margin-top: 4px;
-    min-height: 1.1em;
+    font-weight: 600;
+    margin-top: 5px;
+    min-height: 1.2em;
 }
 
+/* ── Password Wrapper ── */
 .pw-wrap {
     position: relative;
 }
 
 .pw-wrap input {
-    padding-right: 50px;
+    padding-right: 56px;
 }
 
 .show-hide-btn {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #555555;
-    font-size: 0.78rem;
-    font-weight: bold;
+    color: var(--text-muted);
+    font-size: 0.80rem;
+    font-weight: 750;
     cursor: pointer;
-    padding: 2px 4px;
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
 }
 
 .show-hide-btn:hover {
-    color: #1a7a4a;
+    color: var(--primary);
+    background: var(--accent-light);
 }
 
+/* ── Password Strength Bar ── */
 .strength-bar {
     display: flex;
-    gap: 4px;
-    margin-top: 6px;
+    gap: 6px;
+    margin-top: 8px;
 }
 
 .strength-segment {
-    height: 4px;
+    height: 5px;
     flex: 1;
-    background-color: #dddddd;
-    border-radius: 2px;
-    transition: background-color 0.25s;
+    background-color: #e2e8f0;
+    border-radius: var(--radius-full);
+    transition: background-color 0.25s ease;
 }
 
 .strength-text {
     font-size: 0.78rem;
-    font-weight: bold;
-    margin-top: 3px;
-    color: #666666;
+    font-weight: 750;
+    margin-top: 5px;
+    color: var(--text-muted);
 }
 
-.seg-weak   { background-color: #cc3300; }
-.seg-medium { background-color: #dd7700; }
-.seg-strong { background-color: #1a7a4a; }
+.seg-weak   { background-color: #ef4444; }
+.seg-medium { background-color: #f59e0b; }
+.seg-strong { background-color: #10b981; }
 
-.label-weak   { color: #cc3300; }
-.label-medium { color: #dd7700; }
-.label-strong { color: #1a7a4a; }
+.label-weak   { color: #ef4444; }
+.label-medium { color: #f59e0b; }
+.label-strong { color: #059669; }
 
+/* ── Checkbox Row ── */
 .checkbox-row {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 6px;
 }
 
 .checkbox-row input[type="checkbox"] {
-    width: 17px;
-    height: 17px;
-    margin-top: 2px;
-    flex-shrink: 0;
-    accent-color: #1a7a4a;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1.5px solid var(--surface-border);
+    accent-color: var(--accent-dark);
     cursor: pointer;
+    margin: 0;
 }
 
 .checkbox-row label {
-    font-weight: normal;
+    font-weight: 500;
     font-size: 0.88rem;
+    color: var(--text-secondary);
     cursor: pointer;
+    margin-bottom: 0;
 }
 
 .checkbox-row label a {
-    color: #1a7a4a;
-    font-weight: bold;
+    color: var(--accent-dark);
+    font-weight: 700;
     text-decoration: none;
 }
 
 .checkbox-row label a:hover {
+    color: var(--primary);
     text-decoration: underline;
 }
 
+/* ── Action Buttons ── */
 .btn {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 11px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: bold;
+    padding: 13px 20px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 0.96rem;
+    font-weight: 800;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.btn:active {
+    transform: scale(0.99);
 }
 
 .btn-primary {
-    background-color: #1a7a4a;
+    background: linear-gradient(135deg, #064e3b 0%, #043729 100%);
     color: #ffffff;
+    box-shadow: 0 4px 14px rgba(6, 78, 59, 0.25);
+    margin-top: 12px;
     margin-bottom: 10px;
 }
 
 .btn-primary:hover {
-    background-color: #155f3a;
+    background: linear-gradient(135deg, #043729 0%, #02241b 100%);
+    box-shadow: 0 8px 22px rgba(6, 78, 59, 0.35);
+    transform: translateY(-2px);
 }
 
 .btn-secondary {
-    background-color: #ffffff;
-    color: #1a7a4a;
-    border: 1.5px solid #1a7a4a;
+    background: #ffffff;
+    color: var(--text-secondary);
+    border: 1.5px solid var(--surface-border);
+    margin-bottom: 8px;
 }
 
 .btn-secondary:hover {
-    background-color: #edf7f2;
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: var(--text-primary);
 }
 
+/* ── Login Footer Link ── */
 .login-link {
     text-align: center;
-    margin-top: 18px;
-    font-size: 0.88rem;
-    color: #666666;
+    margin-top: 24px;
+    font-size: 0.90rem;
+    color: var(--text-secondary);
 }
 
 .login-link a {
-    color: #1a7a4a;
-    font-weight: bold;
+    color: var(--accent-dark);
+    font-weight: 750;
     text-decoration: none;
+    transition: color 0.15s;
 }
 
 .login-link a:hover {
+    color: var(--primary);
     text-decoration: underline;
 }
 
-@media (max-width: 600px) {
+.login-link span.sep {
+    color: var(--text-muted);
+    margin: 0 6px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
     .card {
-        padding: 24px 18px;
+        padding: 32px 22px;
+        border-radius: var(--radius-md);
     }
 }

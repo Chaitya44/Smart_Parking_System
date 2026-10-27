@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Your Smart Parking customer account.">
+<title>My Parking | Smart Parking</title>
+<link rel="stylesheet" href="../css/customer.css">
+<style>html:not(.access-verified) body{visibility:hidden}</style>
+<script src="../js/access-guard.js" defer></script>
+</head>
+<body data-required-role="USER">
+<header class="topbar"><a class="brand" href="customer.html"><span class="brand-mark">P</span> Smart Parking</a><nav><span class="customer-tag">Customer Portal</span><button id="logoutBtn" class="logout">Log out</button></nav></header>
+<main class="container">
+<section class="hero"><div><p class="eyebrow">YOUR PARKING, IN ONE PLACE</p><h1 id="welcome">Welcome</h1><p>View parking availability, your vehicles, and your parking history.</p></div><div class="hero-icon">P</div></section>
+<p id="pageError" class="error-banner" hidden></p>
+<section class="stats"><article><span>My vehicles</span><strong id="vehicleCount">—</strong></article><article><span>Total bookings</span><strong id="bookingCount">—</strong></article><article><span>Active bookings</span><strong id="activeCount">—</strong></article></section>
+<div class="section-heading"><div><p class="eyebrow">ACCOUNT</p><h2>My profile</h2></div></div>
+<section class="profile panel"><div><span>Full name</span><strong id="profileName">—</strong></div><div><span>Email</span><strong id="profileEmail">—</strong></div><div><span>Mobile</span><strong id="profileMobile">—</strong></div><div><span>Address</span><strong id="profileAddress">—</strong></div></section>
+<div class="section-heading"><div><p class="eyebrow">YOUR GARAGE</p><h2>My vehicles</h2></div></div>
+<section class="panel vehicle-register-panel">
+<form id="vehicleForm" class="vehicle-form">
+<div class="field"><label for="vehicle_number">Registration number *</label><input id="vehicle_number" name="vehicle_number" maxlength="30" placeholder="e.g. MH02AB1234" required></div>
+<div class="field"><label for="vehicle_type">Vehicle type *</label><select id="vehicle_type" name="vehicle_type" required><option value="">Choose type</option><option>2-Wheeler Bike</option><option>2-Wheeler Scooter</option><option>4-Wheeler Car</option><option>EV Vehicle</option></select></div>
+<div class="field"><label for="brand">Brand</label><input id="brand" name="brand" maxlength="50" placeholder="e.g. Honda"></div>
+<div class="field"><label for="model">Model</label><input id="model" name="model" maxlength="50" placeholder="e.g. City"></div>
+<div class="field"><label for="color">Color</label><input id="color" name="color" maxlength="30" placeholder="e.g. White"></div>
+<button class="add-vehicle" type="submit">Add vehicle</button><p id="vehicleMessage" class="form-message" aria-live="polite"></p>
+</form>
+</section>
+<section id="vehicles" class="panel"><p class="empty">Loading your vehicles…</p></section>
+<div class="section-heading"><div><p class="eyebrow">PARKING ACTIVITY</p><h2>My bookings and bills</h2></div></div>
+<section id="bookings" class="panel"><p class="empty">Loading your booking history…</p></section>
+<div class="section-heading"><div><p class="eyebrow">LIVE AVAILABILITY</p><h2>Parking slots</h2><p id="slotSummary" class="muted">Loading availability…</p></div></div>
+<section id="slots" class="slot-grid"><p class="empty">Loading slots…</p></section>
+<footer class="footer">Smart Parking System · Customer access</footer>
+</main>
+<script src="../js/customer.js"></script>
+</body></html>

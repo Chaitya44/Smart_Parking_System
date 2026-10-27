@@ -6,6 +6,8 @@
  */
 
 header('Content-Type: application/json');
+require_once "../auth.php";
+require_admin();
 require_once "../db.php";
 
 $method = $_SERVER['REQUEST_METHOD'];

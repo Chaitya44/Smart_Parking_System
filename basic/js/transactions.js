@@ -3,8 +3,13 @@
  * Fetches billing records from api/bills.php (PHP PDO / smart_parking_db).
  */
 
-/* ── Guard: redirect to login if not authenticated ── */
-(function () { if (!sessionStorage.getItem("sp_logged_in")) window.location.href = "login.html"; })();
+/* ── Guard: redirect to login or dashboard if not admin ── */
+(function () {
+    if (!sessionStorage.getItem("sp_logged_in")) { window.location.href = "login.html"; return; }
+    var role = (sessionStorage.getItem("sp_user_role") || "").trim().toLowerCase();
+    var isUser = (role === "customer" || role === "user" || (!role.includes("admin") && !role.includes("operator") && !role.includes("manager") && !role.includes("staff")));
+    if (isUser) { window.location.href = "dashboard.html"; }
+})();
 
 
 

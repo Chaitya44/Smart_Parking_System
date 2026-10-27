@@ -8,7 +8,13 @@
 header('Content-Type: application/json');
 require_once "../db.php";
 
+session_start();
+
 try {
+    // Check if logged-in session is a regular customer/user
+    $sessionRole = $_SESSION['user_role'] ?? '';
+    $isCustomer = ($sessionRole === 'USER');
+
     // 1. Slot status breakdown
     $slotCounts = $pdo->query("
         SELECT 
@@ -19,9 +25,12 @@ try {
         FROM parking_slots
     ")->fetch();
 
-    // 2. Total collected revenue
-    $revStmt = $pdo->query("SELECT COALESCE(SUM(amount), 0) AS total_revenue FROM bills WHERE payment_status = 'PAID'");
-    $revenue = (float)$revStmt->fetchColumn();
+    // 2. Total collected revenue (only for admin/staff)
+    $revenue = 0.0;
+    if (!$isCustomer) {
+        $revStmt = $pdo->query("SELECT COALESCE(SUM(amount), 0) AS total_revenue FROM bills WHERE payment_status = 'PAID'");
+        $revenue = (float)$revStmt->fetchColumn();
+    }
 
     // 3. Vehicles in/out turnover
     $bookingCounts = $pdo->query("

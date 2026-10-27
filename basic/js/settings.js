@@ -4,23 +4,37 @@
  * Saves changes via POST.
  */
 
-/* ── Guard: redirect to login if not authenticated ── */
-(function () { if (!sessionStorage.getItem("sp_logged_in")) window.location.href = "login.html"; })();
-
+/* Access is enforced by access-guard.js and the PHP API. Do not trust
+   sessionStorage for authorization; it is controlled by the browser. */
 
 /* ── Load current settings from API and pre-fill the form ── */
 function loadSettings() {
-    fetch("../php/api/settings.php")
-        .then(function (res) { return res.json(); })
+    fetch("../php/api/settings.php", {
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" }
+    })
+        .then(function (res) {
+            if (res.status === 401) {
+                window.location.replace("login.html?error=login_required");
+                throw new Error("Login required");
+            }
+            if (res.status === 403) {
+                window.location.replace("customer.html?error=forbidden");
+                throw new Error("Administrator access required");
+            }
+            return res.json();
+        })
         .then(function (result) {
             if (result.success && result.data) {
                 fillForm(result.data);
+            } else if (result.message) {
+                showMsg(result.message, false);
             }
-            // If no data, form defaults remain (as set in HTML)
         })
-        .catch(function () {
-            // API offline – form keeps its HTML default values
-            showMsg("ℹ️ Could not reach the database. Showing default values.", false);
+        .catch(function (error) {
+            if (error.message !== "Login required" && error.message !== "Administrator access required") {
+                showMsg("Could not load system settings. Please check the database connection.", false);
+            }
         });
 }
 
@@ -109,17 +123,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // POST to PHP API (PDO updates parking_lots + parking_slots tables)
         fetch("../php/api/settings.php", {
-            method:  "POST",
-            headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify(payload)
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(payload)
         })
-        .then(function (res) { return res.json(); })
+        .then(function (res) {
+            if (res.status === 401) {
+                window.location.replace("login.html?error=login_required");
+                throw new Error("Login required");
+            }
+            if (res.status === 403) {
+                window.location.replace("customer.html?error=forbidden");
+                throw new Error("Administrator access required");
+            }
+            return res.json();
+        })
         .then(function (result) {
-            showMsg(result.message || "Settings saved.", result.success);
+            showMsg(result.message || (result.success ? "Settings saved." : "Could not save settings."), !!result.success);
         })
-        .catch(function () {
-            // Offline – just show a friendly message; nothing is persisted without DB
-            showMsg("✅ Settings noted (demo mode – no live DB connection).", true);
+        .catch(function (error) {
+            if (error.message !== "Login required" && error.message !== "Administrator access required") {
+                showMsg("Could not save settings. Please check the database connection and try again.", false);
+            }
         });
     });
 

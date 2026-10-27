@@ -5,23 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Login to Smart Parking System.">
     <title>Login – Smart Parking System</title>
-    <link rel="stylesheet" href="../css/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/login.css?v=2.2">
 </head>
 <body>
 
 <main class="card" role="main">
 
     <header class="card-header">
-        <div class="logo-box">
+        <a href="index.html" class="logo-box">
             <div class="logo-icon">P</div>
             <span class="logo-title">Smart Parking</span>
-        </div>
-        <p class="card-subtitle">Login to your account</p>
+        </a>
+        <p class="card-subtitle">Sign in to access your parking dashboard</p>
     </header>
 
-
     <!-- Error messages from PHP (shown by login.js) -->
-    <div id="serverError" class="server-error-msg" style="display:none;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:0.85rem;font-weight:600;"></div>
+    <div id="serverError" class="server-error-msg" style="display:none;"></div>
 
     <form id="loginForm" method="POST" action="../php/login.php" novalidate>
 
@@ -61,12 +63,12 @@
             <a href="#">Forgot password?</a>
         </p>
 
-        <button type="submit" id="loginSubmitBtn" class="btn btn-primary">Login</button>
+        <button type="submit" id="loginSubmitBtn" class="btn btn-primary">Sign In</button>
 
     </form>
 
     <p class="register-link">
-        New user? <a href="register.html">Create an account</a> &bull; <a href="index.html">Home</a>
+        New user? <a href="register.html">Create an account</a> <span class="sep">&bull;</span> <a href="index.html">Back to Home</a>
     </p>
 
 </main>

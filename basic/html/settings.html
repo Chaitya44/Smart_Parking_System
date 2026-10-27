@@ -9,8 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>html:not(.access-verified) body{visibility:hidden}</style>
 </head>
-<body>
+<body data-required-role="ADMIN">
 
 <div class="app-layout">
     <aside class="sidebar">
@@ -231,5 +232,6 @@
 </div>
 
 <script src="../js/settings.js"></script>
+<script src="../js/access-guard.js" defer></script>
 </body>
 </html>

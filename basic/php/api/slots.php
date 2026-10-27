@@ -148,6 +148,9 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
+    require_once "../auth.php";
+    require_admin();
+
     // Add new parking slot
     $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 

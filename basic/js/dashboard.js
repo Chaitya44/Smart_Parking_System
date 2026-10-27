@@ -15,13 +15,83 @@ var activeCheckoutSlot = null; // Slot currently being checked out
     }
 })();
 
-/* ── Clock shown in the top header ── */
+/* ── Clock shown in the top header and modals ── */
 function updateClock() {
     var now  = new Date();
     var d    = document.getElementById("headerDate");
     var t    = document.getElementById("headerTime");
+    var liveTime = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
     if (d) d.textContent = now.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
-    if (t) t.textContent = now.toLocaleTimeString("en-IN");
+    if (t) t.textContent = liveTime;
+    var parkTimeEl = document.getElementById("parkCurrentTime");
+    if (parkTimeEl) parkTimeEl.textContent = liveTime;
+}
+
+/* ── Helper: Format check-in time into clean 12-hour AM/PM local time ── */
+function formatCheckinTime(timeStr) {
+    if (!timeStr || timeStr === "—") return "";
+    try {
+        var str = timeStr.trim();
+        var parts = str.split(/[\sT]+/);
+        if (parts.length === 2) {
+            var timeParts = parts[1].split(":");
+            if (timeParts.length >= 2) {
+                var h = parseInt(timeParts[0], 10);
+                var m = timeParts[1];
+                var ampm = h >= 12 ? "PM" : "AM";
+                h = h % 12;
+                h = h ? h : 12;
+                return (h < 10 ? "0" + h : h) + ":" + m + " " + ampm;
+            }
+        }
+        var d = new Date(str.replace(/-/g, "/"));
+        if (!isNaN(d.getTime())) {
+            return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+        }
+    } catch (e) {}
+    return timeStr.length > 8 ? timeStr.slice(-8) : timeStr;
+}
+
+/* ── Check if logged-in user is a regular customer/user ── */
+function isUserLogin() {
+    var role = (sessionStorage.getItem("sp_user_role") || "").trim().toLowerCase();
+    return role === "customer" || role === "user" || (!role.includes("admin") && !role.includes("operator") && !role.includes("manager") && !role.includes("staff"));
+}
+
+/* ── Apply strict role restrictions on dashboard for regular user/customer logins ── */
+function applyRoleRestrictions() {
+    var isUser = isUserLogin();
+
+    // 1. Add Slot button: only visible to admins
+    var addSlotBtn = document.getElementById("openAddSlotBtn");
+    if (addSlotBtn) {
+        addSlotBtn.style.display = isUser ? "none" : "";
+    }
+
+    // 2. Reset Demo Data button: only visible to admins
+    var resetBtn = document.getElementById("resetDataBtn");
+    if (resetBtn) {
+        resetBtn.style.display = isUser ? "none" : "";
+    }
+
+    // 3. Today's Revenue card: only visible to admins
+    var revCard = document.getElementById("todayRevenueCard") || document.querySelector(".today-revenue-card");
+    if (revCard) {
+        revCard.style.display = isUser ? "none" : "";
+    }
+
+    // 4. Live Audit Log & Records: only visible to admins
+    var activitySec = document.querySelector(".activity-section");
+    if (activitySec) {
+        activitySec.style.display = isUser ? "none" : "";
+    }
+
+    // 5. Hide Admin-only sidebar links (Transactions, Reports, Users, Settings)
+    var adminPages = ["transactions.html", "reports.html", "users.html", "settings.html"];
+    adminPages.forEach(function (page) {
+        var el = document.querySelector('a.nav-item[href*="' + page + '"]');
+        if (el) el.style.display = isUser ? "none" : "";
+    });
 }
 
 /* ── Inject logged-in user name & role into header ── */
@@ -43,6 +113,8 @@ function loadUserHeader() {
         var greeting = hour < 12 ? "Good Morning" : (hour < 17 ? "Good Afternoon" : "Good Evening");
         welcomeHeading.innerHTML = greeting + ", " + name + ' <span class="wave-emoji">👋</span>';
     }
+
+    applyRoleRestrictions();
 }
 
 /* ── Modal helpers ── */
@@ -85,9 +157,14 @@ function fetchStats() {
                 setText("statAvailableSlots",d.available || 0);
                 setText("statOccupiedSlots", d.occupied  || 0);
                 setText("statReservedSlots", d.reserved  || 0);
-                setText("statRevenue",       "₹" + (d.revenue || 0));
+                if (!isUserLogin()) {
+                    setText("statRevenue",   "₹" + (d.revenue || 0));
+                } else {
+                    setText("statRevenue",   "—");
+                }
                 setText("statVehiclesIn",    d.vehiclesIn  || 0);
                 setText("statVehiclesOut",   d.vehiclesOut || 0);
+                applyRoleRestrictions();
             }
         })
         .catch(function () { /* stats missing, not critical */ });
@@ -171,20 +248,27 @@ function renderSlotsGrid(data) {
             squareClass = "square-occupied";
             iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>';
             badgeHtml = '<span class="card-status-badge badge-occ"><span class="status-dot dot-occ"></span> Occupied</span>';
+            var formattedCheckin = formatCheckinTime(entryTime);
             middleHtml = '<div class="card-middle-content occ-content">' +
                 '<div class="plate-row">' + (vehNo || "—") + '</div>' +
                 '<div class="driver-row">' +
                     '<svg class="driver-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' +
-                    '<span>' + (driver || "Driver") + (entryTime ? ' • ' + (entryTime.length > 8 ? entryTime.slice(-8) : entryTime) : '') + '</span>' +
+                    '<span>' + (driver || "Driver") + (formattedCheckin ? ' • ' + formattedCheckin : '') + '</span>' +
                 '</div>' +
             '</div>';
-            actionHtml = '<button type="button" class="card-action-btn btn-occ-action" onclick="openCheckoutModal(\'' + slotNum + '\')">' +
-                '<div class="btn-left">' +
-                    '<svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>' +
-                    '<span>Checkout</span>' +
-                '</div>' +
-                '<span class="btn-arrow">→</span>' +
-            '</button>';
+            if (!isUserLogin()) {
+                actionHtml = '<button type="button" class="card-action-btn btn-occ-action" onclick="openCheckoutModal(\'' + slotNum + '\')">' +
+                    '<div class="btn-left">' +
+                        '<svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>' +
+                        '<span>Checkout</span>' +
+                    '</div>' +
+                    '<span class="btn-arrow">→</span>' +
+                '</button>';
+            } else {
+                actionHtml = '<div class="card-action-btn btn-occ-action" style="cursor:default;opacity:0.85;">' +
+                    '<span>Occupied</span>' +
+                '</div>';
+            }
         } else if (status === "RESERVED") {
             squareClass = "square-reserved";
             iconHtml = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>';
@@ -286,6 +370,10 @@ function openParkModal(preselectedSlotNo) {
     if (preselectedSlotNo) {
         document.getElementById("parkSlotSelect").value = preselectedSlotNo;
     }
+    var parkTimeEl = document.getElementById("parkCurrentTime");
+    if (parkTimeEl) {
+        parkTimeEl.textContent = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
+    }
     openModal("parkModal");
     document.getElementById("parkVehicleNo").focus();
 }
@@ -302,12 +390,15 @@ function openCheckoutModal(slotNumber) {
     var entryTime = slot.entry_time || slot.entryTime || "—";
     var rate      = (slot.hourly_rate !== undefined ? slot.hourly_rate : slot.rate) || 40;
 
+    var formattedEntry = entryTime && entryTime !== "—" ? (formatCheckinTime(entryTime) + (entryTime.indexOf(" ") > 0 ? " (" + entryTime.split(" ")[0] + ")" : "")) : "—";
+    var nowClock = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+
     // Populate checkout summary
     setText("chkSlotId",     slotNum);
     setText("chkVehicleNo",  vehNo);
     setText("chkDriver",     driver);
-    setText("chkEntryTime",  entryTime);
-    setText("chkExitTime",   "Now");
+    setText("chkEntryTime",  formattedEntry || entryTime);
+    setText("chkExitTime",   "Now (" + nowClock + ")");
 
     // Estimate fee (hourly_rate × 2hrs minimum — real calc done by PHP)
     setText("chkTotalFee",   "₹" + (rate * 2) + " (approx.)");
@@ -346,7 +437,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Add Slot modal
-    document.getElementById("openAddSlotBtn").addEventListener("click",     function () { document.getElementById("addSlotForm").reset(); openModal("addSlotModal"); document.getElementById("newSlotId").focus(); });
+    var openAddSlotBtn = document.getElementById("openAddSlotBtn");
+    if (openAddSlotBtn) {
+        openAddSlotBtn.addEventListener("click", function () {
+            if (isUserLogin()) return;
+            document.getElementById("addSlotForm").reset();
+            openModal("addSlotModal");
+            document.getElementById("newSlotId").focus();
+        });
+    }
     document.getElementById("closeAddSlotModalBtn").addEventListener("click",function () { closeModal("addSlotModal"); });
     document.getElementById("cancelAddSlotBtn").addEventListener("click",   function () { closeModal("addSlotModal"); });
 

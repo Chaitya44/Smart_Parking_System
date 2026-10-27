@@ -5,7 +5,9 @@
  * Database: smart_parking_db
  */
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
+require_once "../auth.php";
+require_admin(); // Server-side authorization: only ADMIN sessions may read or change settings.
 require_once "../db.php";
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -25,8 +27,9 @@ if ($method === 'GET') {
         exit;
 
     } catch (PDOException $e) {
+        error_log('Settings read failed: ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Settings error: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => 'Unable to load system settings.']);
         exit;
     }
 }
@@ -42,6 +45,27 @@ if ($method === 'POST') {
     $carRate  = (float)($input['car_rate'] ?? 40);
     $bikeRate = (float)($input['bike_rate'] ?? 20);
     $evRate   = (float)($input['ev_rate'] ?? 60);
+
+    if ($lotName === '' || $location === '') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Lot name and location are required.']);
+        exit;
+    }
+
+    foreach ([$carRate, $bikeRate, $evRate] as $rate) {
+        if (!is_finite($rate) || $rate <= 0 || $rate > 100000) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Hourly rates must be greater than zero and no more than 100000.']);
+            exit;
+        }
+    }
+
+    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $openingTime) ||
+        !preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $closingTime)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Please provide valid opening and closing times.']);
+        exit;
+    }
 
     try {
         $pdo->beginTransaction();
@@ -71,9 +95,15 @@ if ($method === 'POST') {
 
     } catch (PDOException $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
+        error_log('Settings update failed: ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to save settings: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => 'Unable to save system settings. Please try again.']);
         exit;
     }
 }
+
+http_response_code(405);
+header('Allow: GET, POST');
+echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+exit;
 ?>

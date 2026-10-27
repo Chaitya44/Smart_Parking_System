@@ -1,30 +1,80 @@
-* {
+/* ==========================================================================
+   Smart Parking System - Ultra-Modern Login Page Design System
+   Matches Dashboard & Home Theme: Deep Emerald, Clean Glassmorphism & Modern Typography
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary: #064e3b;
+    --primary-dark: #022c22;
+    --primary-hover: #043729;
+    --accent: #10b981;
+    --accent-light: #ecfdf5;
+    --accent-border: #a7f3d0;
+    
+    --bg-page: #f8fafc;
+    --surface: #ffffff;
+    --surface-border: #e2e8f0;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --error: #ef4444;
+    --error-bg: #fef2f2;
+    --error-border: #fca5a5;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-full: 9999px;
+    
+    --shadow-card: 0 12px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+    --shadow-input-focus: 0 0 0 3.5px rgba(16, 185, 129, 0.18);
+    --shadow-error-focus: 0 0 0 3.5px rgba(239, 68, 68, 0.18);
+    
+    --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
-    background-color: #f0f2f0;
-    color: #222222;
+    line-height: 1.6;
+    background-color: var(--bg-page);
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(6, 78, 59, 0.06) 0%, transparent 40%);
+    color: var(--text-primary);
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px 16px;
+    -webkit-font-smoothing: antialiased;
 }
 
+/* ── Container Card ── */
 .card {
-    background-color: #ffffff;
+    background-color: var(--surface);
     width: 100%;
-    max-width: 420px;
-    border-radius: 10px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
-    padding: 36px 40px;
+    max-width: 440px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--shadow-card);
+    padding: 40px 38px;
+    position: relative;
+    transition: var(--transition);
 }
 
+/* ── Header & Brand ── */
 .card-header {
     text-align: center;
     margin-bottom: 28px;
@@ -33,108 +83,232 @@ body {
 .logo-box {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
+    gap: 12px;
+    margin-bottom: 12px;
+    text-decoration: none;
 }
 
 .logo-icon {
-    width: 42px;
-    height: 42px;
-    background-color: #1a7a4a;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
+    border-radius: 12px;
     color: #ffffff;
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 850;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
 }
 
 .logo-title {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #1a7a4a;
+    font-size: 1.45rem;
+    font-weight: 850;
+    color: var(--primary);
+    letter-spacing: -0.025em;
+    line-height: 1;
 }
 
-.card-subtitle { color: #666666; font-size: 0.9rem; }
+.card-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.94rem;
+    font-weight: 500;
+}
 
-.form-group { margin-bottom: 16px; }
+/* ── Error Banner ── */
+.server-error-msg {
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: #991b1b;
+    padding: 11px 14px;
+    border-radius: var(--radius-md);
+    margin-bottom: 18px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+/* ── Form Controls ── */
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
 
 label {
     display: block;
-    font-weight: bold;
+    font-weight: 700;
     font-size: 0.88rem;
-    color: #333333;
-    margin-bottom: 5px;
+    color: var(--text-primary);
+    margin-bottom: 7px;
 }
 
-.required-star { color: #cc0000; margin-left: 2px; }
+.required-star {
+    color: var(--error);
+    margin-left: 2px;
+}
 
 input[type="email"],
 input[type="password"] {
     width: 100%;
-    padding: 10px 13px;
-    border: 1.5px solid #cccccc;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--surface-border);
+    border-radius: var(--radius-md);
     font-size: 0.95rem;
-    font-family: Arial, sans-serif;
-    color: #222222;
-    background-color: #fafafa;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: #fafbfc;
     outline: none;
-    transition: border-color 0.2s;
+    transition: var(--transition);
 }
 
-input:focus { border-color: #1a7a4a; background-color: #ffffff; }
-input.error { border-color: #cc0000; background-color: #fff8f8; }
-input.valid { border-color: #1a7a4a; background-color: #f0fdf4; }
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    color: #a0aec0;
+}
+
+input:hover {
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+}
+
+input:focus {
+    border-color: var(--accent);
+    background-color: #ffffff;
+    box-shadow: var(--shadow-input-focus);
+}
+
+input.error {
+    border-color: var(--error);
+    background-color: #fffafb;
+    box-shadow: var(--shadow-error-focus);
+}
+
+input.valid {
+    border-color: var(--accent-border);
+    background-color: #ffffff;
+}
 
 .error-msg {
     display: block;
-    color: #cc0000;
+    color: var(--error);
     font-size: 0.80rem;
-    margin-top: 4px;
-    min-height: 1.1em;
+    font-weight: 600;
+    margin-top: 5px;
+    min-height: 1.2em;
 }
 
-.pw-wrap { position: relative; }
-.pw-wrap input { padding-right: 50px; }
+/* ── Password Wrapper ── */
+.pw-wrap {
+    position: relative;
+}
+
+.pw-wrap input {
+    padding-right: 56px;
+}
+
 .show-hide-btn {
-    position: absolute; right: 10px; top: 50%;
+    position: absolute;
+    right: 12px;
+    top: 50%;
     transform: translateY(-50%);
-    background: none; border: none;
-    color: #555555; font-size: 0.78rem;
-    font-weight: bold; cursor: pointer;
-    padding: 2px 4px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.80rem;
+    font-weight: 750;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
 }
-.show-hide-btn:hover { color: #1a7a4a; }
 
+.show-hide-btn:hover {
+    color: var(--primary);
+    background: var(--accent-light);
+}
+
+/* ── Auxiliary Links ── */
 .forgot-link {
     text-align: right;
-    margin-top: -8px;
-    margin-bottom: 16px;
-    font-size: 0.82rem;
+    margin-top: -10px;
+    margin-bottom: 22px;
+    font-size: 0.84rem;
 }
-.forgot-link a { color: #1a7a4a; text-decoration: none; }
-.forgot-link a:hover { text-decoration: underline; }
 
+.forgot-link a {
+    color: var(--accent-dark);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.forgot-link a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* ── Buttons ── */
 .btn {
-    display: block; width: 100%;
-    padding: 11px; border: none;
-    border-radius: 6px; font-size: 0.95rem;
-    font-weight: bold; cursor: pointer;
-    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px 20px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 0.96rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
 }
 
-.btn-primary { background-color: #1a7a4a; color: #ffffff; margin-bottom: 10px; }
-.btn-primary:hover { background-color: #155f3a; }
+.btn:active {
+    transform: scale(0.99);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #064e3b 0%, #043729 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(6, 78, 59, 0.25);
+    margin-bottom: 12px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #043729 0%, #02241b 100%);
+    box-shadow: 0 8px 22px rgba(6, 78, 59, 0.35);
+    transform: translateY(-2px);
+}
 
 .register-link {
     text-align: center;
-    margin-top: 18px;
-    font-size: 0.88rem;
-    color: #666666;
+    margin-top: 24px;
+    font-size: 0.90rem;
+    color: var(--text-secondary);
 }
-.register-link a { color: #1a7a4a; font-weight: bold; text-decoration: none; }
-.register-link a:hover { text-decoration: underline; }
 
-@media (max-width: 600px) { .card { padding: 24px 18px; } }
+.register-link a {
+    color: var(--accent-dark);
+    font-weight: 750;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.register-link a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.register-link span.sep {
+    color: var(--text-muted);
+    margin: 0 6px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .card {
+        padding: 30px 22px;
+        border-radius: var(--radius-md);
+    }
+}

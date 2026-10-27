@@ -24,9 +24,12 @@ $options = [
     PDO::ATTR_PERSISTENT         => false,
 ];
 
+date_default_timezone_set('Asia/Kolkata');
+
 try {
     // Initialize primary PDO instance
     $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo->exec("SET time_zone = '+05:30'");
 } catch (PDOException $e) {
     // Return structured JSON error response if called via API
     if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {

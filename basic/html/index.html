@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Smart Parking System - Real-time slot availability, EV stations, and automated parking management.">
     <title>Smart Parking System – Real-Time Space &amp; EV Management</title>
-    <link rel="stylesheet" href="../css/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/home.css?v=2.2">
 </head>
 <body>
 
@@ -35,10 +38,11 @@
 
 <main>
 
+    <!-- ── Hero Section ── -->
     <section class="hero-section">
         <div class="hero-container">
             <div class="hero-badge">
-                <span>⚡</span>
+                <span class="live-dot"></span>
                 <span>Next-Gen Smart Facility &amp; EV Charging Ready</span>
             </div>
 
@@ -55,29 +59,52 @@
                 <a href="register.html" class="btn btn-secondary btn-lg">User Registration</a>
             </div>
 
+            <!-- Live Telemetry Bar -->
             <div class="hero-live-preview">
                 <div class="preview-stat">
-                    <span id="homeTotalSlots" class="preview-num">18</span>
-                    <span class="preview-label">Total Bays</span>
+                    <div class="preview-num-wrap">
+                        <span id="homeTotalSlots" class="preview-num stat-total">18</span>
+                    </div>
+                    <span class="preview-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        Total Bays
+                    </span>
                 </div>
                 <div class="preview-stat">
-                    <span id="homeAvailSlots" class="preview-num" style="color: #1a7a4a;">10</span>
-                    <span class="preview-label">Currently Open</span>
+                    <div class="preview-num-wrap">
+                        <span id="homeAvailSlots" class="preview-num stat-avail">10</span>
+                    </div>
+                    <span class="preview-label">
+                        <span class="live-dot" style="width:7px;height:7px;display:inline-block;"></span>
+                        Available Now
+                    </span>
                 </div>
                 <div class="preview-stat">
-                    <span id="homeEVSlots" class="preview-num" style="color: #0369a1;">6</span>
-                    <span class="preview-label">⚡ EV Stations</span>
+                    <div class="preview-num-wrap">
+                        <span id="homeEVSlots" class="preview-num stat-ev">6</span>
+                    </div>
+                    <span class="preview-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        EV Stations
+                    </span>
                 </div>
                 <div class="preview-stat">
-                    <span class="preview-num" style="color: #6366f1;">4</span>
-                    <span class="preview-label">Active Zones</span>
+                    <div class="preview-num-wrap">
+                        <span id="homeZones" class="preview-num stat-zones">3</span>
+                    </div>
+                    <span class="preview-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+                        Active Zones
+                    </span>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ── Features Section ── -->
     <section id="features" class="features-section">
         <div class="section-header">
+            <span class="section-badge-pill">Enterprise Facility Control</span>
             <h2 class="section-title">Engineered for Maximum Efficiency</h2>
             <p class="section-subtitle">
                 Everything required to eliminate bottlenecks, minimize congestion, and maximize lot occupancy.
@@ -86,7 +113,14 @@
 
         <div class="features-grid">
             <article class="feature-card">
-                <div class="feature-icon-wrap">🚗</div>
+                <div class="feature-icon-wrap">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                        <circle cx="7" cy="17" r="2"/>
+                        <path d="M9 17h6"/>
+                        <circle cx="17" cy="17" r="2"/>
+                    </svg>
+                </div>
                 <h3 class="feature-title">Real-Time Slot Visualizer</h3>
                 <p class="feature-text">
                     Monitor occupied, reserved, and open bays with instant status badges, vehicle license plate tracking, and live entry logs.
@@ -94,7 +128,11 @@
             </article>
 
             <article class="feature-card">
-                <div class="feature-icon-wrap">⚡</div>
+                <div class="feature-icon-wrap ev-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                </div>
                 <h3 class="feature-title">Integrated EV Charging</h3>
                 <p class="feature-text">
                     Dedicated parking bays fitted with high-voltage EV chargers. Filter specifically for EV spots and monitor charging sessions.
@@ -102,7 +140,13 @@
             </article>
 
             <article class="feature-card">
-                <div class="feature-icon-wrap">🏍️</div>
+                <div class="feature-icon-wrap zone-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                        <rect width="18" height="18" x="3" y="3" rx="2"/>
+                        <path d="M3 9h18"/>
+                        <path d="M9 21V9"/>
+                    </svg>
+                </div>
                 <h3 class="feature-title">Multi-Category Zones</h3>
                 <p class="feature-text">
                     Dedicated sections for 4-wheelers, 2-wheeler motorcycles, scooters, and priority spaces with custom zone-specific rates.
@@ -110,7 +154,14 @@
             </article>
 
             <article class="feature-card">
-                <div class="feature-icon-wrap">🧾</div>
+                <div class="feature-icon-wrap bill-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                        <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
+                        <path d="M8 7h8"/>
+                        <path d="M8 11h8"/>
+                        <path d="M8 15h5"/>
+                    </svg>
+                </div>
                 <h3 class="feature-title">Automated Checkout &amp; Billing</h3>
                 <p class="feature-text">
                     Instant calculation of parking durations, hourly fee tallies, digital receipts, and one-click release for incoming drivers.
@@ -119,49 +170,99 @@
         </div>
     </section>
 
+    <!-- ── How It Works Section ── -->
     <section id="howItWorks" class="steps-section">
         <div class="steps-container">
             <div class="section-header">
-                <h2 class="section-title">How It Works</h2>
+                <span class="section-badge-pill">Step-by-Step Flow</span>
+                <h2 class="section-title">How It Works in 3 Simple Steps</h2>
                 <p class="section-subtitle">
-                    A three-step streamlined flow for operators and vehicle owners.
+                    A streamlined flow designed for effortless entry, parking, and instant settlement.
                 </p>
             </div>
 
             <div class="steps-grid">
+                <!-- Step 1 -->
                 <div class="step-card">
-                    <div class="step-num">1</div>
+                    <div class="step-card-header">
+                        <div class="step-badge">
+                            <span class="step-badge-num">01</span>
+                            <span class="step-badge-label">Step</span>
+                        </div>
+                        <div class="step-icon-box">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.3-4.3"/>
+                            </svg>
+                        </div>
+                    </div>
                     <h3 class="step-title">Locate an Open Bay</h3>
                     <p class="step-text">
-                        Check live occupancy across Zone A, B, C, or D using the intuitive dashboard and locate available spots in seconds.
+                        Check real-time slot occupancy across Zone A, B, or C via the visual live dashboard. Instantly find standard or EV-dedicated spots.
                     </p>
+                    <div class="step-tag">
+                        <span class="step-tag-dot"></span> Live Telemetry
+                    </div>
                 </div>
 
+                <!-- Step 2 -->
                 <div class="step-card">
-                    <div class="step-num">2</div>
+                    <div class="step-card-header">
+                        <div class="step-badge">
+                            <span class="step-badge-num">02</span>
+                            <span class="step-badge-label">Step</span>
+                        </div>
+                        <div class="step-icon-box step-icon-car">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                                <circle cx="7" cy="17" r="2"/>
+                                <path d="M9 17h6"/>
+                                <circle cx="17" cy="17" r="2"/>
+                            </svg>
+                        </div>
+                    </div>
                     <h3 class="step-title">Assign &amp; Park</h3>
                     <p class="step-text">
-                        Input vehicle registration, select vehicle category, and generate an automated entry ticket stamped with live arrival time.
+                        Input vehicle registration number, select vehicle category (4-Wheeler, 2-Wheeler, EV), and generate an automated entry ticket stamped with live arrival time.
                     </p>
+                    <div class="step-tag">
+                        <span class="step-tag-dot"></span> Digital Pass
+                    </div>
                 </div>
 
+                <!-- Step 3 -->
                 <div class="step-card">
-                    <div class="step-num">3</div>
+                    <div class="step-card-header">
+                        <div class="step-badge">
+                            <span class="step-badge-num">03</span>
+                            <span class="step-badge-label">Step</span>
+                        </div>
+                        <div class="step-icon-box step-icon-pay">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;min-width:24px;max-width:24px;display:block;">
+                                <line x1="12" x2="12" y1="2" y2="22"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                    </div>
                     <h3 class="step-title">Checkout &amp; Settle</h3>
                     <p class="step-text">
-                        Release the slot upon vehicle departure. Collect fees via Cash, UPI QR code, or Fastag with automatic revenue logging.
+                        Release the bay upon vehicle exit. Collect parking fees calculated by exact hours via UPI QR code, Cash, or Card with automatic revenue logging.
                     </p>
+                    <div class="step-tag">
+                        <span class="step-tag-dot"></span> Instant Release
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ── CTA Section ── -->
     <div class="cta-banner">
         <h2 class="cta-title">Ready to Modernize Your Parking Operations?</h2>
         <p class="cta-subtitle">
             Join thousands of daily drivers enjoying automated, queue-free parking and seamless EV charging stations.
         </p>
-        <div class="hero-buttons">
+        <div class="hero-buttons" style="margin-bottom:0;">
             <a href="register.html" class="btn cta-btn-white btn-lg">Create New Account</a>
             <a href="dashboard.html" class="btn cta-btn-ghost btn-lg">Launch Live Dashboard →</a>
         </div>
@@ -171,39 +272,46 @@
 
 <footer class="home-footer">
     <div class="footer-container">
-        <div>
-            <strong>Smart Parking System</strong> &copy; 2026. All rights reserved.
+        <div class="footer-brand">
+            <span class="footer-brand-mark">P</span>
+            <span>Smart Parking System &copy; 2026. All rights reserved.</span>
         </div>
         <div class="footer-links">
             <a href="index.html">Home</a>
             <a href="dashboard.html">Dashboard</a>
-            <a href="login.html">Login</a>
+            <a href="login.html">Sign In</a>
             <a href="register.html">Register</a>
         </div>
     </div>
 </footer>
 
 <script>
-    var STORAGE_KEY_SLOTS = "smart_parking_slots_v3";
-    try {
-        var raw = localStorage.getItem(STORAGE_KEY_SLOTS);
-        if (raw) {
-            var slots = JSON.parse(raw);
-            var total = slots.length;
-            var avail = 0;
-            var ev = 0;
-            slots.forEach(function (s) {
-                if (s.status === "AVAILABLE") avail++;
-                if (s.hasEV) ev++;
-            });
-            var tEl = document.getElementById("homeTotalSlots");
-            var aEl = document.getElementById("homeAvailSlots");
-            var eEl = document.getElementById("homeEVSlots");
-            if (tEl) tEl.textContent = total;
-            if (aEl) aEl.textContent = avail;
-            if (eEl) eEl.textContent = ev;
-        }
-    } catch (e) {}
+    // Fetch live slot telemetry from API
+    fetch('../php/api/slots.php')
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+            if (result.success && Array.isArray(result.data)) {
+                var slots = result.data;
+                var total = slots.length;
+                var avail = 0;
+                var ev = 0;
+                var zones = new Set();
+                slots.forEach(function (s) {
+                    if ((s.status || '').toUpperCase() === 'AVAILABLE') avail++;
+                    if (s.has_ev || s.hasEV) ev++;
+                    if (s.zone) zones.add(s.zone);
+                });
+                var tEl = document.getElementById("homeTotalSlots");
+                var aEl = document.getElementById("homeAvailSlots");
+                var eEl = document.getElementById("homeEVSlots");
+                var zEl = document.getElementById("homeZones");
+                if (tEl) tEl.textContent = total;
+                if (aEl) aEl.textContent = avail;
+                if (eEl) eEl.textContent = ev;
+                if (zEl && zones.size > 0) zEl.textContent = zones.size;
+            }
+        })
+        .catch(function () {});
 </script>
 
 </body>
